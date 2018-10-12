@@ -1,0 +1,3 @@
+[submodule "seq2geno"]
+	path = seq2geno
+	url = https://github.com/thkuo/seq2geno.git
