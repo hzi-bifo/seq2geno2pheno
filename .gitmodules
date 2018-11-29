@@ -1,3 +1,6 @@
 [submodule "seq2geno"]
 	path = seq2geno
 	url = https://github.com/hzi-bifo/seq2geno.git
+[submodule "geno2pheno"]
+	path = geno2pheno
+	url = git@github.com:ehsanasgari/Geno2Pheno.git
