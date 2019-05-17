@@ -16,6 +16,7 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
     - git (tested version: 2.18)
 
 - Installation of Seq2Geno2Pheno
+
 __to be added__
 
 ### Usage and Input
@@ -25,19 +26,19 @@ Usage:
   seq2geno -f options.yml
 ```
 
-The input file is a yaml file where all options are described. The file consists of the parts described below:
+The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of three parts: functions, files, and predictions:
 
 - functions: the target computational processes
 
 | option | action | values ([default])|
 | --- | --- | --- |
 | dryrun | display the processes and exit | [Y]/N |
-| s | SNPs calling | Y/[N] |
-| d | creating _de novo_ assemblies | Y/[N] |
-| e | counting expression levels | Y/[N] |
-| p | inferring the phylogeny | Y/[N] |
-| de | differential expression | Y/[N] |
-| ar | ancestral reconstruction of expression levels | Y/[N] |
+| s | identify variants (SNPs) | Y/[N] |
+| d | create _de novo_ assemblies and analyze gene contents | Y/[N] |
+| e | count expression levels | Y/[N] |
+| p | infer the phylogeny | Y/[N] |
+| de | conduct analysis of differential expression | Y/[N] |
+| ar | ancestrally reconstruct the expression levels | Y/[N] |
 
 - files: materials for the process specified in _functions_ session
 
