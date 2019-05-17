@@ -1,11 +1,11 @@
 # Seq2Geno2Pheno
 
 ### What is Seq2Geno2Pheno
-This is a computational framework for genomic studies of bacterial population. Compared to conventional methods, such as shell scripts, this package emphsizes data reproducibility and computational environment mangement. 
+This is a computational framework for genomic studies of bacterial population. Compared to conventional methods, such as shell scripts, this package emphasizes data reproducibility and computational environment management. 
 
 ### What can Seq2Geno2Pheno do
-Seq2Geno2Pheno include two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) _de novo_ assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction.
-The outputs from Seq2Geno are formatted for the subsequently stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques. 
+Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) _de novo_ assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction. 
+The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques.
 
 ### Get started
 - Prerequisites
@@ -25,7 +25,7 @@ Usage:
   seq2geno -f options.yml
 ```
 
-The input file is an yaml file where all options are described. The file consists of the parts described below:
+The input file is a yaml file where all options are described. The file consists of the parts described below:
 
 - functions: the target computational processes
 
@@ -39,15 +39,15 @@ The input file is an yaml file where all options are described. The file consist
 | de | differential expression | Y/[N] |
 | ar | ancestral reconstruction of expression levels | Y/[N] |
 
-- files: materials for the the process specififed in _functions_ session
+- files: materials for the process specified in _functions_ session
 
-    - cores: available number of cpus 
-    Although the parameter is included in the "files" session, please just set a number instead of specify an file where the number is stated.
+    - cores: available number of CPUs 
+    Although the parameter is included in the "files" session, please just set a number instead of specifying a file where the number is stated.
 
     - wd: the working directory
     The intermediate and final files will be created under the folder. The final outcomes will be symlinked to RESULTS/.
 
-    - dna-reads: The list of DNA-seq data 
+    - DNA-reads: The list of DNA-seq data 
 
     It should be a two-column list, where the first column includes all samples and the second column lists the __paired-end reads files__. The two reads file are separated by a comma. The first line is the first sample.
     ```
@@ -56,7 +56,7 @@ The input file is an yaml file where all options are described. The file consist
     sample03	sample03_1.fastq.gz,sample03_2.fastq.gz
     ```
 
-    - rna-reads: The list of RNA-seq data
+    - RNA-reads: The list of RNA-seq data
 
     It should be a two-column list, where the first column includes all samples and the second column lists the __short reads files__. The first line is the first sample.
     ```
@@ -67,7 +67,7 @@ The input file is an yaml file where all options are described. The file consist
 
     - pheno: The phenotype table
 
-    For n samples with m phenotypes, the table is n-by-m and the upper-left is blanck. The table is tab-separated. The header line includes the name of phenotypes. The value in the table can also be blanck. 
+    For n samples with m phenotypes, the table is n-by-m and the upper-left is blank. The table is tab-separated. The header line includes the name of phenotypes. Missing values are allowed.
     ```
 	    virulence
     sample01	high
@@ -77,7 +77,7 @@ The input file is an yaml file where all options are described. The file consist
 
     - ref-fa, ref-gff, ref-gbk	The reference data
 
-    The fasta, gff, and genbank files of a reference genome. They should have same sequence ids. 
+    The fasta, gff, and genbank files of a reference genome. They should have the same sequence ids. 
 
     - adaptor: The adaptor file (optional)
 
@@ -91,23 +91,23 @@ The input file is an yaml file where all options are described. The file consist
     Possible algorithms include __[]__. (please refer to __[sklearn page]__)
 
     - part: the method to partition samples
-    The dataset will be divides for testing predictor performance. Possible methods include __[a table to briefly expalin]__.
+    The dataset will be divided for testing predictor performance. Possible methods include __[a table to briefly expalin]__.
 
-    - fold_n: the number of fold for cross validation
-    The value should be possitive integer. Common values are 5 and 10, and our default is __[]__.
+    - fold_n: the number of fold for cross-validation
+    The value should be a positive integer. Common values are 5 and 10, and our default is __[]__.
 
     - optimize: the target metric to optimize
     Possible values include __[]__. (please refer to __[sklearn page]__)
 
-    - test_perc: the precentage of samples 
+    - test_perc: the percentage of samples 
     It specifies the amount of sample that will be isolated from the whole set for independent testing. These samples will not be used to train the predictor but only evaluate the performance. 
     The values should fall between 0.0 and 1.0, and the default is __[]__.
 
     - k-mer: the k-mer size for encoding genome sequences
-    The value should be integer, and the default is __[]__.
+    The value should be an integer, and the default is __[]__.
 
     - cls: classification labels
-    The file specifies classification labels based on the phenotypes. It is a two-column tab-separated file, where the first column are the phenotypes and the second column includes their prediction labels. 
+    The file specifies classification labels based on the phenotypes. It is a two-column tab-separated file, where the first column is the phenotypes and the second column includes their prediction labels. 
     ```
     high	class_1
     mediate	class_1
@@ -124,6 +124,7 @@ Please refer to [the license file]
 Please cite __[paper link]__ if it facilitated your researches. 
 
 ### Contact
-  1. Open an issue in the repository
-  2. Send an email to __[Tzuhao email]__ or __[Ehsan email]__
-Please remember to state how your problem can be reproduced and, if accessible, what methods have been tried. 
+Possible methods:
+1. Open an issue in the repository
+2. Send an email to Tzu-Hao Kuo (Tzu-Hao.Kuo@helmholtz-hzi.de) or __[Ehsan email]__
+Please remember to state how the problem can be reproduced and, if accessible, what solutions have been tried. 
