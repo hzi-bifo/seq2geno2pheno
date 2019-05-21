@@ -51,7 +51,7 @@ def main(args):
     import sys
     ## test folder
     if not os.path.isdir(os.path.join(args.sg, 'RESULTS')):
-        print('ERROR:Cannot find target folder')
+        print('ERROR: Cannot find {}'.format(os.path.join(args.sg, 'RESULTS')))
         sys.exit()
 
     root = ET.Element("project",

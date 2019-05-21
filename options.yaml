@@ -1,0 +1,42 @@
+functions:
+  dryrun: Y
+  snps: Y
+  denovo: N 
+files:
+  sgp_output_d: test_sgp
+  cores: 
+    15 
+  dna_reads: 
+    #    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list_with_ref
+  rna_reads:
+    '-'
+  ref_fa: 
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/reference01/Pseudomonas_aeruginosa_PA14.edit.fasta 
+  ref_gff: 
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/reference01/RefCln_UCBPP-PA14.edit.gff 
+  ref_gbk: 
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/reference01/Pseudomonas_aeruginosa_PA14_ncRNA.edit.gbk 
+  phe_table: 
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/phenotypes.mat
+  adaptor:
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/data/NEBNext_adapter.fasta
+prediction:
+  pred: 
+   'geno2pheno' 
+  optimize: 
+    - scores_f1_1
+  fold_n: 
+    10
+  test_perc: 
+    0.1
+  part: rand
+  models:
+    - svm
+    - rf
+  kmer: 
+    6
+  classes_f: 
+    '-'
+  ovrd: 
+    1

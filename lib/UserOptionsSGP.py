@@ -10,9 +10,9 @@ class arguments:
     def test_mandatory_args(self):
         import re
         ## ensure a key exists and the values is legal
-        obligatory_args= ['dna_reads', 'wd', 'pred']
+        obligatory_args= ['dna_reads', 'pred', 'sgp_output_d']
         obligatory_args_values= {'dna_reads': '\w+', 
-            'wd': '\w+', 'pred': '\w+'}
+            'sgp_output_d': '\w+', 'pred': '\w+'}
         for k in obligatory_args:
             if hasattr(self, k):
                 v= getattr(self, k)
@@ -25,11 +25,13 @@ class arguments:
 
     def check_args(self):
         import sys
+        import os
         # obligatory arguments
         try:
             self.test_mandatory_args()
         except KeyError as e:
             sys.exit('ERROR: {}'.format(str(e)))
+
         # default values of optional arguments
         optional_args= {'cores':1, 'adaptor': '-', 'rna_reads': '-', 
                 'dryrun': True, 
@@ -38,6 +40,20 @@ class arguments:
         for k in optional_args:
             if not hasattr(self, k):
                 setattr(self, k, optional_args[k])
+
+    def set_auto_filled_args(self):
+        import os
+        # auto-filled obligatory arguments
+        au_obligatory_args= ['wd', 'sg', 'gp_output_d']
+        au_obligatory_args_values= {
+            'wd': os.path.join(
+                getattr(self, 'sgp_output_d'), 'seq2geno'), 
+            'sg': os.path.join(
+                getattr(self, 'sgp_output_d'), 'seq2geno'),
+            'gp_output_d': os.path.join(
+                getattr(self, 'sgp_output_d'), 'geno2pheno')}
+        for k in au_obligatory_args:
+            setattr(self, k, au_obligatory_args_values[k])
 
 
 def parse_arg_yaml(yml_f):
@@ -48,17 +64,30 @@ def parse_arg_yaml(yml_f):
     available_functions= ['snps', 'expr', 'denovo', 'phylo', 'de', 'ar',
     'dryrun']
     with open(yml_f, 'r') as yml_fh:
-        opt_dict= yaml.load(yml_fh)
-        for k in opt_dict['functions']: 
-            opt_dict['functions'][k]= (True if opt_dict['functions'][k] == 'Y'
+        opt_dict= yaml.safe_load(yml_fh)
+        for k in available_functions: 
+            if k in opt_dict['functions']:
+                opt_dict['functions'][k]= (True if opt_dict['functions'][k] == 'Y'
                 else False)
+            else:
+                opt_dict['functions'][k]=False 
+
     ## the seq2geno output folder should be fixed
-    opt_dict['prediction']['sg']= opt_dict['files']['wd']
     args= arguments()
     args.add_opt(**opt_dict['files'])
     args.add_opt(**opt_dict['functions'])
     args.add_opt(**opt_dict['prediction'])
     args.check_args()
+    args.set_auto_filled_args()
+    return(args)
+
+def read_options(opt_f, dsply_args):
+    import sys
+    args= parse_arg_yaml(opt_f)
+    if dsply_args:
+        print('Your arguments:')
+        args.print_args()
+        sys.exit()
     return(args)
 
 def main():
@@ -86,9 +115,8 @@ def main():
         help= 'the yaml file where the arguments are listed')
 
     primary_args= parser.parse_args()
-    args= parse_arg_yaml(primary_args.yml_f)
-    if primary_args.dsply_args:
-        print('Your arguments:')
-        args.print_args()
-        sys.exit()
+    args= read_options(primary_args.yml_f, primary_args.dsply_args)
     return(args)
+
+if __name__=='__main__':    
+    main()
