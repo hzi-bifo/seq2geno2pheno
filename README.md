@@ -1,9 +1,9 @@
 # Seq2Geno2Pheno
 
-### What is Seq2Geno2Pheno
+### What is Seq2Geno2Pheno?
 This is a computational framework for genomic studies of bacterial population. Compared to conventional methods, such as shell scripts, this package emphasizes data reproducibility and computational environment management. 
 
-### What can Seq2Geno2Pheno do
+### What can Seq2Geno2Pheno do?
 Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) _de novo_ assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction. 
 The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques.
 
@@ -21,9 +21,25 @@ __to be added__
 
 ### Usage and Input
 
-Usage:
 ```
-  seq2geno -f options.yml
+usage: seq2geno2pheno [-h] [-v] [-d] -f YML_F
+
+Seq2Geno2Pheno: the pipline tool for genomic features computation and phenotype predictor training
+
+optional arguments:
+  -h, --help
+    show this help message and exit
+  -v
+    show program's version number and exit
+  -d
+    display the arguments in yaml and exit
+  -f YML_F
+    the yaml file where the arguments are listed
+```
+
+Example:
+```
+  seq2geno2pheno -f options.yml
 ```
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of three parts: functions, files, and predictions:
