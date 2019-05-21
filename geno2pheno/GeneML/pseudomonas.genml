@@ -1,0 +1,53 @@
+<project output="/net/sgi/metagenomics/projects/pseudo_genomics/results/geno2pheno_package/Pseudogenomics/" name="pseudogenomics_infection">
+<genotype>
+    <sequence path="/net/sgi/metagenomics/projects/pseudo_genomics/forRuben/genomes/" kmer='6'></sequence>
+     <table path="/net/sgi/metagenomics/projects/pseudo_genomics/data/gene_expression/v2/rpg_414_log.txt"  normalization="zu" transpose="False">
+genexp
+    </table>
+    <table path="/net/sgi/metagenomics/projects/pseudo_genomics/results/PackageTesting/recompute_Pseudomonas/v1/nonsyn_SNPs_final.bin.mat_NONRDNT"  normalization="binary" transpose="False">
+snps
+    </table>
+    <table path="/net/sgi/metagenomics/projects/pseudo_genomics/results/featuresAnalysis/v2/gpa/annot.uniq.txt"  normalization="binary" transpose="False">
+gpa
+    </table>
+    <table path="/net/sgi/metagenomics/projects/pseudo_genomics/results/assembly/v2/roary/v5/out_95/indels/indel_annot.txt" normalization="binary" transpose="False">
+roary
+    </table>
+</genotype>
+<phenotype path="GeneML/pheno_table_CLSI_S-vs-R.txt">
+</phenotype>
+<phylogentictree path="GeneML/mitip_422_gt90.fasttree"></phylogentictree>
+
+<predict name="S_vs_R_tree_cv">
+    <optimize>scores_f1_1</optimize>
+    <eval folds="10" test="0.1">tree</eval>
+    <labels>
+            <label value="1">1</label>
+            <label value="1">1.0</label>
+            <label value="0">0</label>
+            <label value="0">0.0</label>
+    </labels>
+    <model>
+        <svm/>
+        <rf/>
+        <lr/>
+    </model>
+</predict>
+
+<predict name="S_vs_R_std_cv">
+    <optimize>scores_f1_1</optimize>
+    <eval folds="10" test="0.1">rand</eval>
+    <labels>
+            <label value="1">1</label>
+            <label value="1">1.0</label>
+            <label value="0">0</label>
+            <label value="0">0.0</label>
+    </labels>
+    <model>
+        <svm/>
+        <rf/>
+        <lr/>
+    </model>
+</predict>
+
+</project>
