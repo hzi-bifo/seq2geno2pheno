@@ -61,6 +61,7 @@ def parse_arg_yaml(yml_f):
     Parse the yaml file where the parameters previously were commandline options
     '''
     import yaml
+    import sys
     available_functions= ['snps', 'expr', 'denovo', 'phylo', 'de', 'ar',
     'dryrun']
     with open(yml_f, 'r') as yml_fh:
@@ -74,12 +75,16 @@ def parse_arg_yaml(yml_f):
 
     ## the seq2geno output folder should be fixed
     args= arguments()
-    args.add_opt(**opt_dict['files'])
-    args.add_opt(**opt_dict['functions'])
-    args.add_opt(**opt_dict['prediction'])
-    args.check_args()
-    args.set_auto_filled_args()
-    return(args)
+    try:
+        args.add_opt(**opt_dict['files'])
+        args.add_opt(**opt_dict['functions'])
+        args.add_opt(**opt_dict['prediction'])
+    except KeyError as e:
+        sys.exit('ERROR: {} not found in the options file'.format(str(e)))
+    else:
+        args.check_args()
+        args.set_auto_filled_args()
+        return(args)
 
 def read_options(opt_f, dsply_args):
     import sys
@@ -87,7 +92,7 @@ def read_options(opt_f, dsply_args):
     if dsply_args:
         print('Your arguments:')
         args.print_args()
-        sys.exit()
+        print('Only display options')
     return(args)
 
 def main():

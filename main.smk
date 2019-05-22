@@ -27,15 +27,17 @@ os.environ['PATH']= ':'.join([
 ## accept arguments
 import UserOptionsSGP
 #args= UserOptionsSGP.main()
-dsply_args= (True if config['d'] == 'Y' else False)
-opt_f= config['f']
+dsply_args= (True if config['review_args'] == 'Y' else False)
+opt_f= config['config_f']
+args= ''
+target_data= [opt_f]
 args= UserOptionsSGP.read_options(opt_f, dsply_args)
-
+if not dsply_args:
+    target_data=[os.path.join(args.wd,'RESULTS'),args.gp_output_d]
+  
 rule all:
     input:
-#        sg_out= os.path.join(args.wd,'RESULTS'),
-#        genml= os.path.join(args.sgp_output_d, 'info', 'seq2geno.gml')
-#        gp_out= directory(args.gp_output_d)
+        target_data
 
 rule create_options_yaml:
     '''
@@ -68,22 +70,29 @@ rule seq2geno:
     input: 
         target_yml= os.path.join(args.sgp_output_d, 'info', 'seq2geno_inputs.yml')
     output: 
-        sg_key_output_d= os.path.join(args.wd,'RESULTS')
+        #sg_key_output_d= os.path.join(args.wd,'RESULTS')  
+        # seq2geno outputs could not be checked with the above
+        sg_check= os.path.join(args.sgp_output_d, 'info', 'seq2geno_report')
     conda: os.path.join(seq2geno_home, 'install', 'snakemake_env.yml')
+    params:
+        sg_log= os.path.join(args.sgp_output_d, 'info', 'seq2geno_log')
     shell:
         '''
         which seq2geno
-        seq2geno -f {input.target_yml}
+        seq2geno -f {input.target_yml} > {params.sg_log}
+        ## if the above is successfully finished
+        echo "Seq2Geno: $(date)" > {output.sg_check} 
         '''
 
 rule create_genml:
     input: 
-        sg_key_output_d= os.path.join(args.wd,'RESULTS')
+        sg_key_output_d= os.path.join(args.wd,'RESULTS'),
+        sg_check= os.path.join(args.sgp_output_d, 'info', 'seq2geno_report')
     output:
         genml= os.path.join(args.sgp_output_d, 'info', 'seq2geno.gml')
     params:
         sgp_home= sgp_home,
-        args= args
+        args=args
     run:
         import sys
         import os
@@ -99,10 +108,10 @@ rule geno2pheno:
     ensure Geno2Pheno is executable
     '''
     input:
-        #sg_key_output_d= os.path.join(args.wd,'RESULTS'),
+        sg_key_output_d= os.path.join(args.wd,'RESULTS'),
         genml= os.path.join(args.sgp_output_d, 'info', 'seq2geno.gml')
     output: directory(args.gp_output_d)
-    conda: os.path.join(geno2pheno_home, 'installation', 'requirements.txt')
+    conda: os.path.join(geno2pheno_home, 'installation', 'requirements.yml')
     params:
         ovrd= args.ovrd
     threads: args.cores

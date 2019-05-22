@@ -1,14 +1,21 @@
+config_f: options.sgp.yaml
+review_args: N
 functions:
   dryrun: Y
   snps: Y
-  denovo: N 
+  denovo: Y
+  phylo: N
+  expr: N
+  de: N
+  ar: N
 files:
-  sgp_output_d: test_sgp
   cores: 
-    15 
+    15
   dna_reads: 
-    #    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list
-    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list_with_ref
+    #   /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list
+    #   /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list_with_ref
+    #/net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list_short
+    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/dna_list_short_10
   rna_reads:
     '-'
   ref_fa: 
@@ -19,8 +26,13 @@ files:
     /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/reference01/Pseudomonas_aeruginosa_PA14_ncRNA.edit.gbk 
   phe_table: 
     /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/test/v2/data/phenotypes.mat
-  adaptor:
-    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/data/NEBNext_adapter.fasta
+  sgp_output_d:
+    sgp.whatever
+#  wd: 
+#    whatever
+#  adaptor:
+#    /net/metagenomics/data/from_moni/old.tzuhao/seq2geno/data/NEBNext_adapter.fasta
+#
 prediction:
   pred: 
    'geno2pheno' 
