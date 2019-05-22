@@ -10,7 +10,7 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 ### Get started
 - Prerequisites
 
-    - conda (tested version: 4.5.11)
+    - conda (tested version: 4.6.14)
     - python (tested verson: 3.6)
     - Linux (tested version: Debian GNU/Linux 8.8 jessie)
     - git (tested version: 2.18)
@@ -22,7 +22,7 @@ __to be added__
 ### Usage and Input
 
 ```
-usage: seq2geno2pheno [-h] [-v] [-d] -f YML_F
+usage: sgp [-h] [-v] -f CONFIG_F
 
 Seq2Geno2Pheno: the pipline tool for genomic features computation and phenotype predictor training
 
@@ -31,9 +31,7 @@ optional arguments:
     show this help message and exit
   -v
     show program's version number and exit
-  -d
-    display the arguments in yaml and exit
-  -f YML_F
+  -f CONFIG_F
     the yaml file where the arguments are listed
 ```
 
@@ -42,9 +40,13 @@ Example:
   seq2geno2pheno -f options.yml
 ```
 
-The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of three parts: functions, files, and predictions:
+The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of five main parts:
 
-- functions: the target computational processes
+1. config_f: the input filename itself
+
+2. review_args: boolean value to specify if the software exits after only displaying the arguments
+
+3. functions: the target computational processes
 
 | option | action | values ([default])|
 | --- | --- | --- |
@@ -56,7 +58,7 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 | de | conduct analysis of differential expression | Y/[N] |
 | ar | ancestrally reconstruct the expression levels | Y/[N] |
 
-- files: materials for the process specified in _functions_ session
+4. files: materials for the process specified in _functions_ session
 
     - cores: available number of CPUs 
     Although the parameter is included in the "files" session, please just set a number instead of specifying a file where the number is stated.
@@ -100,7 +102,7 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 
     The fasta file of adaptors of DNA-seq. It is used to process the DNA-seq reads. 
 
-- prediction: the details about machine learning
+5. prediction: the details about machine learning
 
     - pred: the name of machine learning project
 
