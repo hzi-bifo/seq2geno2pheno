@@ -56,12 +56,12 @@ rule create_options_yaml:
         available_functions= [
             'snps', 'expr', 'denovo', 'phylo', 'de', 'ar', 'dryrun']
         for k in available_functions: 
-            if not k in opt_dict['functions']:
-                opt_dict['functions'][k]='N'
+            if not k in opt_dict['features']:
+                opt_dict['features'][k]='N'
 
-        target_opt_dict = {x: opt_dict[x] for x in ['functions', 'files']}
-        target_opt_dict['files']['wd']= args.wd
-        del target_opt_dict['files']['sgp_output_d']
+        target_opt_dict = {x: opt_dict[x] for x in ['features', 'general']}
+        target_opt_dict['general']['wd']= args.wd
+        del target_opt_dict['general']['sgp_output_d']
         
         with open(output.target_yml, 'w') as out_fh:
             yaml.dump(target_opt_dict, out_fh, default_flow_style=False)
