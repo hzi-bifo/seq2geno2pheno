@@ -34,7 +34,13 @@ target_data= [opt_f]
 args= UserOptionsSGP.read_options(opt_f, dsply_args)
 if not dsply_args:
     target_data=[os.path.join(args.wd,'RESULTS'),args.gp_output_d]
-  
+## determine time code
+## for 
+import datetime
+time= datetime.datetime.now()
+time_code= '{}-{}_{}-{}-{}'.format(
+    time.month, time.day, time.hour, time.minute, time.second)
+
 rule all:
     input:
         target_data
@@ -46,7 +52,7 @@ rule create_options_yaml:
     input:
         opt_yml= opt_f
     output:
-        target_yml= os.path.join(args.sgp_output_d, 'info', 'seq2geno_inputs.yml')
+        target_yml= os.path.join(args.sgp_output_d, 'info', time_code 'seq2geno_inputs.yml')
     run:
         import yaml
         yml_fh=open(input.opt_yml, 'r')
@@ -73,13 +79,12 @@ rule seq2geno:
         #sg_key_output_d= os.path.join(args.wd,'RESULTS')  
         # seq2geno outputs could not be checked with the above
         sg_check= os.path.join(args.sgp_output_d, 'info', 'seq2geno_report')
-    conda: os.path.join(seq2geno_home, 'install', 'snakemake_env.yml')
-    params:
-        sg_log= os.path.join(args.sgp_output_d, 'info', 'seq2geno_log')
+    conda: os.path.join(seq2geno_home, 'install', time_code, 'snakemake_env.yml')
+    log: os.path.join(args.sgp_output_d, 'info', time_code, 'seq2geno_log')
     shell:
         '''
         which seq2geno
-        seq2geno -f {input.target_yml} > {params.sg_log}
+        seq2geno -f {input.target_yml} > {log}
         ## if the above is successfully finished
         echo "Seq2Geno: $(date)" > {output.sg_check} 
         '''
