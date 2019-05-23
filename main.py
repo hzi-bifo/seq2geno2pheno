@@ -31,6 +31,8 @@ def main():
         version='v.Beta')
     parser.add_argument('-f', dest= 'config_f', required= True, 
         help= 'the yaml file where the arguments are listed')
+    parser.add_argument('-d', dest= 'dryrun', required= True, 
+        help= 'the yaml file where the arguments are listed')
     args= parser.parse_args()
     run_pipeline(args.config_f)
 

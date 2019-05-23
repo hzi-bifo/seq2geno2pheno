@@ -37,16 +37,16 @@ optional arguments:
 
 Example:
 ```
-  seq2geno2pheno -f options.yml
+   sgp -f options.yml
 ```
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of five main parts:
 
 1. config_f: the input filename itself
 
-2. review_args: boolean value to specify if the software exits after only displaying the arguments
+2. review_args: boolean value to specify if only displaying the arguments
 
-3. functions: the target computational processes
+3. features: target computational processes
 
 | option | action | values ([default])|
 | --- | --- | --- |
@@ -58,10 +58,9 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 | de | conduct analysis of differential expression | Y/[N] |
 | ar | ancestrally reconstruct the expression levels | Y/[N] |
 
-4. files: materials for the process specified in _functions_ session
+4. general: materials and resources
 
     - cores: available number of CPUs 
-    Although the parameter is included in the "files" session, please just set a number instead of specifying a file where the number is stated.
 
     - wd: the working directory
     The intermediate and final files will be created under the folder. The final outcomes will be symlinked to RESULTS/.
@@ -102,7 +101,7 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 
     The fasta file of adaptors of DNA-seq. It is used to process the DNA-seq reads. 
 
-5. prediction: the details about machine learning
+5. prediction: parameters about machine learning
 
     - pred: the name of machine learning project
 
@@ -143,7 +142,8 @@ Please refer to [the license file]
 Please cite __[paper link]__ if it facilitated your researches. 
 
 ### Contact
-Possible methods:
-1. Open an issue in the repository
-2. Send an email to Tzu-Hao Kuo (Tzu-Hao.Kuo@helmholtz-hzi.de) or __[Ehsan email]__
-Please remember to state how the problem can be reproduced and, if accessible, what solutions have been tried. 
+method 1. Open an issue in the repository
+method 2. Send email to 
+- Tzu-Hao Kuo (Tzu-Hao.Kuo@helmholtz-hzi.de) for problems about Seq2Geno or general questions
+- Ehsaneddin Asgari (asgari@berkeley.edu) for problems about Geno2Pheno
+#####Please remember to state how the problem can be reproduced and, if accessible, what solutions have been tried. 

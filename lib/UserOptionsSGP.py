@@ -67,20 +67,20 @@ def parse_arg_yaml(yml_f):
     with open(yml_f, 'r') as yml_fh:
         opt_dict= yaml.safe_load(yml_fh)
         for k in available_functions: 
-            if k in opt_dict['functions']:
-                opt_dict['functions'][k]= (True if opt_dict['functions'][k] == 'Y'
+            if k in opt_dict['features']:
+                opt_dict['features'][k]= (True if opt_dict['features'][k] == 'Y'
                 else False)
             else:
-                opt_dict['functions'][k]=False 
+                opt_dict['features'][k]=False 
 
     ## the seq2geno output folder should be fixed
     args= arguments()
     try:
-        args.add_opt(**opt_dict['files'])
-        args.add_opt(**opt_dict['functions'])
+        args.add_opt(**opt_dict['general'])
+        args.add_opt(**opt_dict['features'])
         args.add_opt(**opt_dict['prediction'])
     except KeyError as e:
-        sys.exit('ERROR: {} not found in the options file'.format(str(e)))
+        sys.exit('ERROR: {} not found in the input file'.format(str(e)))
     else:
         args.check_args()
         args.set_auto_filled_args()
