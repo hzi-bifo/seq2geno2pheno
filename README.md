@@ -15,9 +15,31 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
     - Linux (tested version: Debian GNU/Linux 8.8 jessie)
     - git (tested version: 2.18)
 
-- Installation of Seq2Geno2Pheno
+- Installation
 
-__to be added__
+    1. Download Seq2Geno2Pheno:
+
+	`git clone --recurse-submodules https://github.com/hzi-bifo/seq2geno2pheno.git`
+
+	The option `--recurse-submodules` helps to download the submodules that are located at another repository (i.e. Seq2Geno and Geno2Pheno). The flag is available only in git version >2.13, and users of earlier git version may need to find the substitute. 
+
+    2. Install the core environment:
+
+	Please check install/INSTALL to learn more details. 
+	The core environment means the set of computational tools that are required to initiate Seq2Geno2Pheno. The environemnt, like those in the other parts of this package, is stated in a file that is recognizable by Conda, which makes the installation of everything achievable in one command. 
+
+    3. Install the process-spcific environment:
+	
+	Many processes in the package require specific environments, which will be automatically installed when for the first time called by an scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with our toy dataset or any other small dataset to install these environments and facillitate future usages.
+
+    4. Finally, set the variable `PATH` and `SGP_HOME`. You may want to try
+
+	```
+	export SGP_HOME=/where/the/seq2geno2pheno/is/at
+	export PATH=$SGP_HOME:$PATH
+	```
+
+	or inserting the above line in the `.profile` of your home directory, which will be more convenient for future usages.
 
 ### Usage and Input
 
@@ -106,23 +128,17 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
     - pred: the name of machine learning project
 
     - models: the machine learning algorithm
-    Possible algorithms include __[]__. (please refer to __[sklearn page]__)
 
     - part: the method to partition samples
-    The dataset will be divided for testing predictor performance. Possible methods include __[a table to briefly expalin]__.
 
     - fold_n: the number of fold for cross-validation
-    The value should be a positive integer. Common values are 5 and 10, and our default is __[]__.
 
     - optimize: the target metric to optimize
-    Possible values include __[]__. (please refer to __[sklearn page]__)
 
     - test_perc: the percentage of samples 
     It specifies the amount of sample that will be isolated from the whole set for independent testing. These samples will not be used to train the predictor but only evaluate the performance. 
-    The values should fall between 0.0 and 1.0, and the default is __[]__.
 
     - k-mer: the k-mer size for encoding genome sequences
-    The value should be an integer, and the default is __[]__.
 
     - cls: classification labels
     The file specifies classification labels based on the phenotypes. It is a two-column tab-separated file, where the first column is the phenotypes and the second column includes their prediction labels. 
@@ -134,12 +150,8 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 
     - out: the prediction output folder
 
-
 ### License
-Please refer to [the license file]
-
-### Citation
-Please cite __[paper link]__ if it facilitated your researches. 
+Apache 2.0 (please refer to LICENSE)
 
 ### Contact
 method 1. Open an issue in the repository
