@@ -21,16 +21,16 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 
 	`git clone --recurse-submodules https://github.com/hzi-bifo/seq2geno2pheno.git`
 
-	The option `--recurse-submodules` helps to download the submodules that are located at another repository (i.e. Seq2Geno and Geno2Pheno). The flag is available only in git version >2.13, and users of earlier git version may need to find the substitute. 
+	The option `--recurse-submodules` helps to download the submodules that are located at another repository (i.e. Seq2Geno and Geno2Pheno). The flag is available only in git version >2.13, and users of earlier git versions may need to find the substitute.  
 
     2. Install the core environment:
 
-	Please check install/INSTALL to learn more details. 
-	The core environment means the set of computational tools that are required to initiate Seq2Geno2Pheno. The environemnt, like those in the other parts of this package, is stated in a file that is recognizable by Conda, which makes the installation of everything achievable in one command. 
+	Please check install/INSTALL.md to learn more details. 
+        The core environment means the set of computational tools that are required to initiate Seq2Geno2Pheno. The environment, like those in the other parts of this package, is stated in a file that is recognizable by Conda, which makes the installation of everything achievable in one command. 	
 
-    3. Install the process-spcific environment:
+    3. Install the process-specific environment:
 	
-	Many processes in the package require specific environments, which will be automatically installed when for the first time called by an scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with our toy dataset or any other small dataset to install these environments and facillitate future usages.
+	The computational environment required by each workflow differs. These environments will be automatically installed when for the first time called by a scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with our toy dataset or any other small dataset to install these environments and facilitate future usages.
 
     4. Finally, set the variable `PATH` and `SGP_HOME`. You may want to try
 
@@ -39,7 +39,7 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 	export PATH=$SGP_HOME:$PATH
 	```
 
-	or inserting the above line in the `.profile` of your home directory, which will be more convenient for future usages.
+	or inserting the above line in the `.profile` of your home directory, which will make the future usages easier.
 
 ### Usage and Input
 
@@ -63,6 +63,8 @@ Example:
 ```
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of five main parts:
+(Note: in __general__ and __prediction__ session, the file or directory paths must be __absolute path__)
+(Note: Geno2Pheno requires at least __[]__ samples) __[Ehsan]__
 
 1. config_f: the input filename itself
 
@@ -91,25 +93,25 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 
     It should be a two-column list, where the first column includes all samples and the second column lists the __paired-end reads files__. The two reads file are separated by a comma. The first line is the first sample.
     ```
-    sample01	sample01_1.fastq.gz,sample01_2.fastq.gz
-    sample02	sample02_1.fastq.gz,sample02_2.fastq.gz
-    sample03	sample03_1.fastq.gz,sample03_2.fastq.gz
+    sample01	/paired/end/reads/sample01_1.fastq.gz,/paired/end/reads/sample01_2.fastq.gz
+    sample02	/paired/end/reads/sample02_1.fastq.gz,/paired/end/reads/sample02_2.fastq.gz
+    sample03	/paired/end/reads/sample03_1.fastq.gz,/paired/end/reads/sample03_2.fastq.gz
     ```
 
     - RNA-reads: The list of RNA-seq data
 
     It should be a two-column list, where the first column includes all samples and the second column lists the __short reads files__. The first line is the first sample.
     ```
-    sample01	sample01.rna.fastq.gz
-    sample02	sample02.rna.fastq.gz
-    sample03	sample03.rna.fastq.gz
+    sample01	/transcription/reads/sample01.rna.fastq.gz
+    sample02	/transcription/reads/sample02.rna.fastq.gz
+    sample03	/transcription/reads/sample03.rna.fastq.gz
     ```
 
     - pheno: The phenotype table
 
-    For n samples with m phenotypes, the table is n-by-m and the upper-left is blank. The table is tab-separated. The header line includes the name of phenotypes. Missing values are allowed.
+    For n samples with m phenotypes, the table is n-by-m. The table is tab-separated. The first column should be sample names, and the header line includes names of phenotypes. More than one phenotype is also allowed. Missing values are acceptable.
     ```
-	    virulence
+    strains	virulence
     sample01	high
     sample02	mediate
     sample03	low
@@ -117,35 +119,35 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 
     - ref-fa, ref-gff, ref-gbk	The reference data
 
-    The fasta, gff, and genbank files of a reference genome. They should have the same sequence ids. 
+    The fasta, gff, and genbank files of a reference genome. They should have the same sequence accessions. 
 
     - adaptor: The adaptor file (optional)
 
-    The fasta file of adaptors of DNA-seq. It is used to process the DNA-seq reads. 
+    The fasta file of adaptors of DNA-seq. Pruning DNA-seq reads will be activated if the file is properly specified.
 
-5. prediction: parameters about machine learning
+5. prediction: parameters about machine learning __[Ehsan]__
 
     - pred: the name of machine learning project
 
-    - models: the machine learning algorithm
+    - models: the machine learning algorithm (choices: __[]__)
 
-    - part: the method to partition samples
+    - part: the method to partition samples (choices: __[]__)
 
-    - fold_n: the number of fold for cross-validation
+    - fold_n: the number of fold for cross-validation (integer; commonly 5 or 10)
 
-    - optimize: the target metric to optimize
+    - optimize: the target metric to optimize (choices: __[]__)
 
-    - test_perc: the percentage of samples 
-    It specifies the amount of sample that will be isolated from the whole set for independent testing. These samples will not be used to train the predictor but only evaluate the performance. 
+    - test_perc: the percentage of samples  (float number between 0.0 and 1.0; commonly 0.2)
+    The proportion of samples will be isolated from the whole set for independent testing. These samples will not be used to train the predictor. 
 
     - k-mer: the k-mer size for encoding genome sequences
 
     - cls: classification labels
-    The file specifies classification labels based on the phenotypes. It is a two-column tab-separated file, where the first column is the phenotypes and the second column includes their prediction labels. 
+    The file specifies classification labels based on the phenotypes. It is a two-column tab-separated file, where the first column is the phenotypes and the second column includes their prediction labels. The prediction labels must be integers.  
     ```
-    high	class_1
-    mediate	class_1
-    low	class_2
+    high	1
+    mediate	1
+    low	2
     ```
 
     - out: the prediction output folder

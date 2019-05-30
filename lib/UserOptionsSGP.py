@@ -86,7 +86,7 @@ def parse_arg_yaml(yml_f):
         args.set_auto_filled_args()
         return(args)
 
-def read_options(opt_f, dsply_args):
+def read_options(opt_f, dsply_args=False):
     import sys
     args= parse_arg_yaml(opt_f)
     if dsply_args:

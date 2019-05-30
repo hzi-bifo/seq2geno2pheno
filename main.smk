@@ -27,7 +27,6 @@ os.environ['PATH']= ':'.join([
     geno2pheno_home,
     os.environ['PATH']])
     
-
 ## accept arguments
 import UserOptionsSGP
 #args= UserOptionsSGP.main()
@@ -41,15 +40,15 @@ time= datetime.datetime.now()
 time_code='sgp{}_{}.{}_{}'.format(str(time.day), str(time.month),
 str(time.hour), str(time.minute))
 info_d= os.path.join(args.sgp_output_d, 'info', time_code)
-print(info_d)
 info_d_copy= info_d
 n= 0
 while os.path.isdir(info_d):
     n=n+1
     info_d= info_d_copy+'_{}'.format(str(n))
 
-target_data=[os.path.join(info_d,'seq2geno_report'),
-os.path.join(info_d,'geno2pheno_report')]
+target_data=[
+    os.path.join(info_d,'seq2geno_report'),
+    os.path.join(info_d,'geno2pheno_report')]
 
 rule all:
     input:
@@ -100,9 +99,8 @@ rule seq2geno:
         '''
         which seq2geno
         seq2geno -f {input.target_yml} > {params.screenshot} 2> {log}
-        ## Only if seq2geno execute new processes and successfully finished
-        ## them, the "output" could be created and allow subsequent geno2pheno
-        ## execute
+        ## Only when SG was sucessfully done, and new or precomputed data
+        ## are available, this step is considered successful
         if [[ ! -z $(grep "{params.proc_complete_pattern}" {params.screenshot}) ]];then \
 printf "Seq2Geno: $(date)\ndetails recorded in: {log}" > {output.sg_check}; fi
         '''

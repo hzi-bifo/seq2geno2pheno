@@ -79,7 +79,8 @@ def main(args, genml_f):
                 'transpose': "False"})
         setattr(bin_tables, 'text', 'binary_tables')
     else:
-        raise OSError('{} is empty or absent'.format(bin_tables_dir))
+        raise OSError(
+                'GenML: {} (binary features) is absent but required'.format(bin_tables_dir))
 
     #### for numeric features
     num_tab_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS',
@@ -93,7 +94,8 @@ def main(args, genml_f):
                 'transpose': "False"})
         setattr(con_tables, 'text', 'numeric_tables')
     else:
-        raise OSError('{} is empty or absent'.format(num_tables_dir))
+        raise OSError(
+                'GenML: {} (numeric features) is absent but required'.format(num_tables_dir))
 
     #### genome seq
     assem_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS', 
@@ -106,7 +108,8 @@ def main(args, genml_f):
                 'kmer': str(args.kmer)})
         setattr(seq, 'text', 'assemblies')
     else:
-        raise OSError('{} is empty or absent'.format(assem_dir))
+        raise OSError(
+                'GenML: {} (assemblies) is absent but required'.format(assem_dir))
 
     ####
     ## phenotype block
@@ -118,7 +121,8 @@ def main(args, genml_f):
             attrib={'path': phe_f})
         setattr(pheno, 'text', '\n')
     else:
-        raise OSError('{} is absent'.format(phe_f))
+        raise OSError(
+                'GenML: {} (phenotypes) is absent but required'.format(phe_f))
 
     ####
     ## phylogeny block
@@ -130,7 +134,7 @@ def main(args, genml_f):
             attrib={'path': phy_f})
         setattr(phy, 'text', '\n')
     else:
-        raise OSError('{} is absent'.format(phy_f))
+        raise OSError('GenML: {} (phylogeny) is absent but required'.format(phy_f))
 
 
     ####
@@ -152,7 +156,8 @@ def main(args, genml_f):
                         attrib= {'value': str(d[1])})
                 setattr(cls, 'text', str(d[0]))
     else:
-        raise OSError('{} is absent'.format(args.classes_f))
+        raise OSError(
+                'GenML: {} (prediction classes) is absent but required'.format(args.classes_f))
 
     model= ET.SubElement(pred, "model")
     if len(args.models) > 0:
