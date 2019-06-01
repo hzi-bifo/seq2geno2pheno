@@ -92,6 +92,8 @@ dependencies:
   - pango=1.40.14=he752989_2
   - paramiko=2.4.2=py36_1000
   - pcre=8.41=hfc679d8_3
+  - perl=5.22.0.1=0
+  - perl-app-cpanminus=1.7043=pl5.22.0_0
   - pillow=5.4.0=py36hc736899_0
   - pip=18.1=py36_1000
   - pixman=0.34.0=h470a237_3
