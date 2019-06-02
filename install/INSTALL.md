@@ -1,9 +1,10 @@
 Before everything starts, please make sure Conda has been properly installed.
-The command below will help to install all the software included in the core environment:
+The command below will help to install the core software:
 
-`conda env create --file=sgp_env.yml`
+`./INSTALL.sh`
 
-Then try activating it:
+##### Test
+Then try activating the core environment `sgp_env`:
 
 ```
 source activate sgp_env

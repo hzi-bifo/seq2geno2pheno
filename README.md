@@ -19,7 +19,11 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 
     1. Download Seq2Geno2Pheno:
 
-	`git clone --recurse-submodules https://github.com/hzi-bifo/seq2geno2pheno.git`
+	```
+	git clone --recurse-submodules https://github.com/hzi-bifo/seq2geno2pheno.git
+	cd seq2geno2pheno/
+	git submodule update --init --recursive
+	```
 
 	The option `--recurse-submodules` helps to download the submodules that are located at another repository (i.e. Seq2Geno and Geno2Pheno). The flag is available only in git version >2.13, and users of earlier git versions may need to find the substitute.  
 
@@ -59,7 +63,9 @@ optional arguments:
 
 Example:
 ```
+   source activate sgp_env
    sgp -f options.yml
+   source deactivate
 ```
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of five main parts:
