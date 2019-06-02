@@ -27,3 +27,4 @@ source deactivate
 ```
 
 Please also note that the environment should not have changed any original software settings, so everything, such as environment variables or software versions, should be same as what they were before the installation was done. The software included in the environment is available only when the environment has been activated. 
+

@@ -63,7 +63,9 @@ Example:
 ```
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. The file consists of five main parts:
+
 (Note: in __general__ and __prediction__ session, the file or directory paths must be __absolute path__)
+
 (Note: Geno2Pheno requires at least __[]__ samples) __[Ehsan]__
 
 1. config_f: the input filename itself
@@ -156,8 +158,13 @@ The only input file (i.e. `options.yml`) is a yaml file where all options are de
 Apache 2.0 (please refer to LICENSE)
 
 ### Contact
+
 method 1. Open an issue in the repository
+
 method 2. Send email to 
+
 - Tzu-Hao Kuo (Tzu-Hao.Kuo@helmholtz-hzi.de) for problems about Seq2Geno or general questions
+
 - Ehsaneddin Asgari (asgari@berkeley.edu) for problems about Geno2Pheno
+
 #####Please remember to state how the problem can be reproduced and, if accessible, what solutions have been tried. 
