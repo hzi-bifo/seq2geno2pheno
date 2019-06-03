@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+'''
+Folder -> check if absent or empty
+File -> check if absent 
+'''
+
 def parse_usr_opts():
     import argparse
     arg_formatter = lambda prog: argparse.RawTextHelpFormatter(prog,
@@ -6,7 +12,7 @@ def parse_usr_opts():
 
     parser = argparse.ArgumentParser(
             formatter_class= arg_formatter,
-            description='create genml file for Geno2Pheno')
+            description='create genml file from Seq2Geno output')
 
     parser.add_argument('-v', action= 'version', 
         version='v.Beta')
@@ -44,18 +50,18 @@ def parse_usr_opts():
     args = parser.parse_args()
     return(args)
 
-def main(args):
+def main(args, genml_f):
     from xml.dom import minidom
     import xml.etree.ElementTree as ET
     import os
     import sys
     ## test folder
     if not os.path.isdir(os.path.join(args.sg, 'RESULTS')):
-        print('ERROR: Cannot find {}'.format(os.path.join(args.sg, 'RESULTS')))
-        sys.exit()
+        raise OSError('{} is absent'.format(
+            os.path.join(args.sg, 'RESULTS')))
 
     root = ET.Element("project",
-            output=args.gp_output_d,
+            output=os.path.abspath(args.gp_output_d),
             name=args.sg)
 
     ####
@@ -64,35 +70,46 @@ def main(args):
     #### for binary tables
     bin_tab_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS',
         'bin_tables'))
-    if os.path.isdir(bin_tab_dir):
+    if os.path.isdir(bin_tab_dir) & (len(os.listdir(bin_tab_dir) ) > 0):
         bin_tables = ET.SubElement(
             geno, "tables",
             attrib= {
                 'path': bin_tab_dir, 
                 'normalization': "binary", 
                 'transpose': "False"})
-        setattr(bin_tables, 'text', args.sg)
+        setattr(bin_tables, 'text', 'binary_tables')
+    else:
+        raise OSError(
+                'GenML: {} (binary features) is absent but required'.format(bin_tables_dir))
+
     #### for numeric features
     num_tab_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS',
         'num_tables'))
-    if os.path.isdir(num_tab_dir):
+    if os.path.isdir(num_tab_dir) & (len(os.listdir(num_tab_dir) ) > 0):
         con_tables = ET.SubElement(
             geno, "tables",
             attrib= {
                 'path': num_tab_dir, 
-                'normalization': "numeric", 
+                'normalization': "zu", 
                 'transpose': "False"})
-        setattr(con_tables, 'text', args.sg)
+        setattr(con_tables, 'text', 'numeric_tables')
+    else:
+        raise OSError(
+                'GenML: {} (numeric features) is absent but required'.format(num_tables_dir))
+
     #### genome seq
     assem_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS', 
         'assemblies'))
-    if os.path.isdir(assem_dir):
+    if os.path.isdir(assem_dir) & (len(os.listdir(assem_dir) ) > 0):
         seq= ET.SubElement(
             geno, "sequence",
             attrib={
                 'path': assem_dir, 
                 'kmer': str(args.kmer)})
-        setattr(seq, 'text', args.sg)
+        setattr(seq, 'text', 'assemblies')
+    else:
+        raise OSError(
+                'GenML: {} (assemblies) is absent but required'.format(assem_dir))
 
     ####
     ## phenotype block
@@ -104,7 +121,8 @@ def main(args):
             attrib={'path': phe_f})
         setattr(pheno, 'text', '\n')
     else:
-        sys.exit('No phenotype was found')
+        raise OSError(
+                'GenML: {} (phenotypes) is absent but required'.format(phe_f))
 
     ####
     ## phylogeny block
@@ -116,7 +134,7 @@ def main(args):
             attrib={'path': phy_f})
         setattr(phy, 'text', '\n')
     else:
-        sys.exit('No phylogeny was found')
+        raise OSError('GenML: {} (phylogeny) is absent but required'.format(phy_f))
 
 
     ####
@@ -124,22 +142,29 @@ def main(args):
     pred= ET.SubElement(root, "predict",
             attrib= {'name': args.pred})
     optimize= ET.SubElement(pred, "optimize")
-    setattr(optimize, 'text', str(args.optimize))
+    setattr(optimize, 'text', str(args.optimize[0]))
     validation= ET.SubElement(pred, "eval",
             attrib= {'folds': str(args.fold_n), 'test': str(args.test_perc)})
     setattr(validation, 'text', str(args.part))
 
-    with open(args.classes_f, 'r') as cls_fh:
-        for l in cls_fh:
-            d=l.strip().split('\t')
-            cls= ET.SubElement(pred, "label",
-                    attrib= {'value': str(d[0])})
-            setattr(cls, 'text', str(d[1]))
+    if os.path.isfile(args.classes_f):
+        all_cls= ET.SubElement(pred, "labels")
+        with open(args.classes_f, 'r') as cls_fh:
+            for l in cls_fh:
+                d=l.strip().split('\t')
+                cls= ET.SubElement(all_cls, "label",
+                        attrib= {'value': str(d[1])})
+                setattr(cls, 'text', str(d[0]))
+    else:
+        raise OSError(
+                'GenML: {} (prediction classes) is absent but required'.format(args.classes_f))
 
     model= ET.SubElement(pred, "model")
-    for m in args.models:
-        ET.SubElement(model, m)
-
+    if len(args.models) > 0:
+        for m in args.models:
+            ET.SubElement(model, m)
+    else:
+        raise ValueError('Prediction models not specified')
 
     ####
     ## convert to string
@@ -147,7 +172,6 @@ def main(args):
     rough_string= ET.tostring(root, 'utf-8')
     reparsed= minidom.parseString(rough_string)
     indented_string= reparsed.toprettyxml(indent="  ")
-    genml_f= os.path.join(args.sg, 'seq2geno.gml')
     with open(genml_f, 'w') as genml_fh:
             genml_fh.write(indented_string)
 
