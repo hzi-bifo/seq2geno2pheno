@@ -34,18 +34,16 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 
 	The core environment means the set of computational tools that are required to initiate Seq2Geno2Pheno. The environment, like those in the other parts of this package, is stated in a file that is recognizable by Conda, which makes the installation of everything achievable in one command. 	
 
-    3. Install the process-specific environment:
-	
-	The computational environment required by each workflow differs. These environments will be automatically installed when for the first time called by a scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with our toy dataset or any other small dataset to install these environments and facilitate future usages.
-
-    4. Finally, set the variable `PATH` and `SGP_HOME`. You may want to try
+    3. Finally, set the variable `PATH` and `SGP_HOME`. You may either manually set them up using:
 
 	```
 	export SGP_HOME=/where/the/seq2geno2pheno/is/at
 	export PATH=$SGP_HOME:$PATH
 	```
 
-	or inserting the above line in the `.profile` or `.bashrc` of your home directory, which will make the future usages easier.
+	or insert the above line in the `.profile` or `.bashrc` of your home directory.
+
+	Until here, the core environment of Seq2Geno2Pheno should have been installed. However, it still lacks the process-specific environments, which are computational environments required by only part of the workflows. These environments will be automatically installed when for the first time called by a scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with a small dataset, such as our example dataset, to install these environments and facilitate future usages.
 
 ### Usage and Input
 
@@ -107,6 +105,7 @@ cd example_sgp_dataset
     - cores: available number of CPUs 
 
     - sgp_output_d: the working directory
+
     The intermediate and final files will be created under the folder. 
 
     - dna_reads: The list of DNA-seq data 
@@ -129,7 +128,7 @@ cd example_sgp_dataset
 
     - phe_table: The phenotype table
 
-    For n samples with m phenotypes, the table is n-by-m. The table is tab-separated. The first column should be sample names, and the header line includes names of phenotypes. More than one phenotype is also allowed. Missing values are acceptable.
+    The table is tab-separated. For n samples with m phenotypes, the table is (n+1)-by-(m+1) as shown below. The first column should list the sample names. The header line is supposed to includes names of phenotypes. Missing values are acceptable.
     ```
     strains	virulence
     sample01	high
