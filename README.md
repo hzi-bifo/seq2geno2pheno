@@ -84,7 +84,7 @@ cd example_sgp_dataset
 
 (Note: in __general__ and __prediction__ session, the file or directory paths must be __absolute path__)
 
-(Note: Geno2Pheno requires at least __[]__ samples) __[Ehsan]__
+(Note: Geno2Pheno requires at least ~ 100 samples, with a reasonable balance in the positive and negative labels in order to perform properly) 
 
 1. config_f: the input filename itself
 
