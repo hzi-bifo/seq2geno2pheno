@@ -8,6 +8,9 @@ Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to comput
 
 The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques. For standalone running of Geno2Pheno please refer to the documentation in the Geno2Pheno directory.
 
+![SEQ2GENO2PHENO-Copy of Overview diagram](https://user-images.githubusercontent.com/8551117/59326225-24d7cd00-8ce6-11e9-86ef-137856f1714c.png)
+
+
 ### Get started
 - Prerequisites
 
@@ -149,33 +152,33 @@ cd example_sgp_dataset
     - pred: a name for the prediction -- this parameter is useful when different classifications schemes are applied on the same data
 
     - models: the classification method 
-    	- choices (multiple selection is possible): 
-		SVM (for support vector machine)
-		RF (for random forests)
-		LR (for logistic regression]
+		- choices (multiple selection is possible): 
+			- SVM (for support vector machine)
+			- RF (for random forests)
+			- LR (for logistic regression]
 
     - part: the method to partition samples 
-    	- choices (each prediction block can have 1 partitioning method): 
-		tree (for phylogenetic based splitting in CV and test set creation)
-		rand (for random splitting)])
+		- choices (each prediction block can have 1 partitioning method): 
+			- tree (for phylogenetic based splitting in CV and test set creation)
+			- rand (for random splitting)])
 
     - fold_n: the number of fold for cross-validation (integer; commonly 5 or 10)
 
     - optimize: the target metric to optimize 
-    	- choices:
-		'accuracy': 'accuracy',
-		'scores_p_1': 'precision of the positive class'
-		'scores_r_1': 'recall of the positive class'
-		'scores_p_0': 'precision of the negative class'
-		'scores_r_0': 'recall of the negative class'
-		'scores_f1_1': 'f1 of the positive class'
-		'scores_f1_0': 'f1 of the negative class'
-		'precision_micro': 'precision micro'
-		'precision_macro': 'precision macro'
-		'recall_macro': 'recall macro'
-		'recall_micro': 'recall micro'
-		'f1_macro': 'f1_macro' 
-		'f1_micro': 'f1_micro'
+		- choices:
+			- 'accuracy': 'accuracy',
+			- 'scores_p_1': 'precision of the positive class'
+			- 'scores_r_1': 'recall of the positive class'
+			- 'scores_p_0': 'precision of the negative class'
+			- 'scores_r_0': 'recall of the negative class'
+			- 'scores_f1_1': 'f1 of the positive class'
+			- 'scores_f1_0': 'f1 of the negative class'
+			- 'precision_micro': 'precision micro'
+			- 'precision_macro': 'precision macro'
+			- 'recall_macro': 'recall macro'
+			- 'recall_micro': 'recall micro'
+			- 'f1_macro': 'f1_macro' 
+			- 'f1_micro': 'f1_micro'
 
     - test_perc: the percentage of samples  (float number between 0.0 and 1.0; commonly 0.1)
     The proportion of samples will be isolated from the whole set for independent testing. These samples will not be used to train the predictor. 
