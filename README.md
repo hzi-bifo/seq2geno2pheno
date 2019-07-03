@@ -107,6 +107,8 @@ cd example_sgp_dataset
 
     - cores: available number of CPUs 
 
+    - old_config: do not overwrite the previous config files of seq2geno. (Please make sure the old config file really are accessible.)
+
     - sgp_output_d: the working directory
 
     The intermediate and final files will be created under the folder. 
@@ -180,7 +182,7 @@ cd example_sgp_dataset
 			- 'f1_macro': 'f1_macro' 
 			- 'f1_micro': 'f1_micro'
 
-    - test_perc: the percentage of samples  (float number between 0.0 and 1.0; commonly 0.1)
+    - test_ratio: the percentage of samples  (float number between 0.0 and 1.0; commonly 0.1)
     The proportion of samples will be isolated from the whole set for independent testing. These samples will not be used to train the predictor. 
 
     - kmer: the k-mer size for encoding genome sequences
