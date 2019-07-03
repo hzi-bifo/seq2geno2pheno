@@ -1,9 +1,21 @@
 # Seq2Geno2Pheno
-
-### What is Seq2Geno2Pheno?
+---
+### Contents
+- [What is Seq2Geno2Pheno?](#what_is)
+- [What can Seq2Geno2Pheno do?](#what_can)
+- [Get started](#get_started)
+	- [Prerequisites](#prerequisites)
+	- [Installation](#installation)
+- [Usage](#usage)
+- [Example dataset](#example)
+- [Input yaml file](#input)
+- [License](#license)
+- [Contact](#contact)
+---
+### <a name='what_is'></a>What is Seq2Geno2Pheno?
 This is a computational framework for genomic studies of bacterial population. Compared to conventional methods, such as shell scripts, this package emphasizes data reproducibility and computational environment management. 
 
-### What can Seq2Geno2Pheno do?
+### <a name='what_can'></a>What can Seq2Geno2Pheno do?
 Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) _de novo_ assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction. 
 
 The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques. For standalone running of Geno2Pheno please refer to the documentation in the Geno2Pheno directory.
@@ -11,15 +23,15 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 ![SEQ2GENO2PHENO-Copy of Overview diagram](https://user-images.githubusercontent.com/8551117/59326225-24d7cd00-8ce6-11e9-86ef-137856f1714c.png)
 
 
-### Get started
-- Prerequisites
+### <a name='get_started'></a>Get started
+- <a name='prerequisites'></a>Prerequisites
 
     - conda (tested version: 4.6.14)
     - python (tested verson: 3.6)
     - Linux (tested version: Debian GNU/Linux 8.8 jessie)
     - git (tested version: 2.18)
 
-- Installation
+- <a name='installation'></a>Installation
 
     1. Download Seq2Geno2Pheno:
 
@@ -48,7 +60,7 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 
 	Until here, the core environment of Seq2Geno2Pheno should have been installed. However, it still lacks the process-specific environments, which are computational environments required by only part of the workflows. These environments will be automatically installed when for the first time called by a scheduled process. Therefore, we encourage every user to run Seq2Geno2Pheno with a small dataset, such as our example dataset, to install these environments and facilitate future usages.
 
-### Usage and Input
+### <a name='usage'></a>Usage
 
 ```
 usage: sgp [-h] [-v] -f CONFIG_F
@@ -73,7 +85,7 @@ Example:
 
 The only input file (i.e. `options.yml`) is a yaml file where all options are described. We also offer an example dataset where reads and commands are included (see below).
 
-### Example dataset
+### <a name='example'></a>Example dataset
 
 We offer an example dataset `example_sgp_dataset.tar.gz`. Please decompress it by 
 
@@ -83,7 +95,7 @@ cd example_sgp_dataset
 ```
 , and then refer to the tutorial `USAGE.md`. 
 
-### Input yaml file
+### <a name='input'></a>Input yaml file
 
 (Note: in __general__ and __prediction__ session, the file or directory paths must be __absolute path__)
 
@@ -198,10 +210,10 @@ cd example_sgp_dataset
     - ovrd: whether to overwrite the existing geno2pheno outputs (choices: 1:yes, 0:no)
     
 
-### License
+### <a name='license'></a>License
 Apache 2.0 (please refer to LICENSE)
 
-### Contact
+### <a name='contact'></a>Contact
 
 (Note: Please remember to state how your problem can be reproduced and, if accessible, what solutions have been tried)
 
