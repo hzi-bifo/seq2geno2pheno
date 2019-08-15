@@ -32,7 +32,7 @@ def parse_usr_opts():
     pred_args.add_argument('--fold_n', dest= 'fold_n', 
             help= 'number of folds during validation', 
             default= 10)
-    pred_args.add_argument('--test_perc', dest= 'test_perc', 
+    pred_args.add_argument('--test_ratio', dest= 'test_ratio', 
             help= 'proportion of samples for testing', 
             default= 0.1)
     pred_args.add_argument('--part', dest= 'part', 
@@ -144,7 +144,7 @@ def main(args, genml_f):
     optimize= ET.SubElement(pred, "optimize")
     setattr(optimize, 'text', str(args.optimize[0]))
     validation= ET.SubElement(pred, "eval",
-            attrib= {'folds': str(args.fold_n), 'test': str(args.test_perc)})
+            attrib= {'folds': str(args.fold_n), 'test': str(args.test_ratio)})
     setattr(validation, 'text', str(args.part))
 
     if os.path.isfile(args.classes_f):

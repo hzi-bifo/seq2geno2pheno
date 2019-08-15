@@ -3,6 +3,7 @@ channels:
   - bioconda
   - conda-forge
   - defaults
+  - conda-forge/label/broken
 dependencies:
   - aioeasywebdav=2.2.0=py36_0
   - aiohttp=3.5.4=py36h14c3975_0
