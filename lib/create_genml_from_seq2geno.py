@@ -80,7 +80,7 @@ def main(args, genml_f):
         setattr(bin_tables, 'text', 'binary_tables')
     else:
         raise OSError(
-                'GenML: {} (binary features) is absent but required'.format(bin_tables_dir))
+                'GenML: {} (binary features) is absent but required'.format(bin_tab_dir))
 
     #### for numeric features
     num_tab_dir= os.path.abspath(os.path.join(args.sg, 'RESULTS',
