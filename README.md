@@ -24,12 +24,17 @@ The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. Th
 
 
 ### <a name='get_started'></a>Get started
-- <a name='prerequisites'></a>Prerequisites
+- <a name='prerequisites'></a>Requirements
 
-    - conda (tested version: 4.6.14)
-    - python (tested verson: 3.6)
-    - Linux (tested version: Debian GNU/Linux 8.8 jessie)
-    - git (tested version: 2.18)
+    - [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) (tested version: 4.6.14)
+    - file [.condarc](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html) that includes these channels and is detectable by your conda
+		- conda-forge/label/broken
+		- bioconda
+		- conda-forge
+		- defaults
+    - [python](https://www.python.org/downloads/) (tested verson: 3.6)
+    - [Linux](https://www.cyberciti.biz/faq/find-linux-distribution-name-version-number/) (tested version: Debian GNU/Linux 8.8 jessie)
+    - [git](https://git-scm.com/downloads) (tested version: 2.18)
 
 - <a name='installation'></a>Installation
 

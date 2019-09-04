@@ -18,13 +18,17 @@ def run_pipeline(config_f):
         if not outcome:
             raise RuntimeError
     except RuntimeError as e:
-        print('#####')
-        print("Seq2Geno2Pheno stopped. "
-    "This might be resulted from dryrun mode or real errors. "
-    "If this is unexpected, please check the options file and the info folder.")
+        print('\n'*2)
+        print('\033[91m' + "Seq2Geno2Pheno was stopped by "
+    "either DRYRUN mode of Seq2Geno or errors. "
+    "If this is unexpected, please check the options "
+    "file and the info folder." + '\033[0m' )
+        print('\n'*2)
     else:
-        print('#####')
-        print("Seq2Geno2Pheno complete!")
+        print('\n'*2)
+        print('\033[91m'+"Seq2Geno2Pheno complete!")
+        print('\n'*2)
+
     
 def main():
     import argparse
@@ -34,8 +38,8 @@ def main():
     parser = argparse.ArgumentParser(
             formatter_class= arg_formatter,
             description='Seq2Geno2Pheno: the pipline tool '
-                'for genomic features computation and phenotype predictor '
-                'training')
+                'for computing genomic features and training phenotype '
+                'classifiors')
 
     parser.add_argument('-v', action= 'version', 
         version='v.Beta')
