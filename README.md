@@ -16,7 +16,7 @@
 This is a computational framework for genomic studies of bacterial population. Compared to conventional methods, such as shell scripts, this package emphasizes data reproducibility and computational environment management. 
 
 ### <a name='what_can'></a>What can Seq2Geno2Pheno do?
-Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) _de novo_ assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction. 
+Seq2Geno2Pheno includes two main stages. The first stage Seq2Geno aims to compute genomic features with sequencing reads. Briefly speaking, it covers (1) variant calling, (2) expression analysis, (3) de novo assembly and gene content identification, and (4) phylogeny inference. These are followed by optional functionals of (5) differential expression analysis and (6) ancestral reconstruction. 
 
 The outputs from Seq2Geno are formatted for the subsequent stage: Geno2Pheno. This stage mainly trains phenotype predictors with the genomic data. Furthermore, it reports lists of genomic factors that are potentially linked to the target phenotype using feature selection techniques. For standalone running of Geno2Pheno please refer to the documentation in the Geno2Pheno directory.
 
@@ -114,7 +114,7 @@ cd example_sgp_dataset
 | --- | --- | --- |
 | dryrun | display the processes and exit | [Y]/N |
 | s | identify variants (SNPs) | Y/[N] |
-| d | create _de novo_ assemblies and analyze gene contents | Y/[N] |
+| d | create de novo assemblies and analyze gene contents | Y/[N] |
 | e | count expression levels | Y/[N] |
 | p | infer the phylogeny | Y/[N] |
 | de | conduct analysis of differential expression | Y/[N] |
