@@ -19,14 +19,16 @@ def run_pipeline(config_f):
             raise RuntimeError
     except RuntimeError as e:
         print('\n'*2)
-        print('\033[91m' + "Seq2Geno2Pheno was stopped by "
-    "either DRYRUN mode of Seq2Geno or errors. "
-    "If this is unexpected, please check the options "
-    "file and the info folder." + '\033[0m' )
+        print('\033[91m' + "Seq2Geno2Pheno was stopped."
+            "If this is unexpected, checking files or results under the "
+            "output directory may help you to find the cause." + '\033[0m')
         print('\n'*2)
     else:
         print('\n'*2)
-        print('\033[91m'+"Seq2Geno2Pheno complete!")
+        print('\033[91m'
+              'Seq2Geno2Pheno complete!\n'
+              'Please consider citing Seq2Geno2Pheno if it helped '
+              '\033[0m')
         print('\n'*2)
 
     

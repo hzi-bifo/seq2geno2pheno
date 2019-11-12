@@ -46,9 +46,9 @@ while os.path.isdir(info_d):
     n=n+1
     info_d= info_d_copy+'_{}'.format(str(n))
 
-target_data=[
-    os.path.join(info_d,'seq2geno_report'),
-    os.path.join(info_d,'geno2pheno_report')]
+target_data=[os.path.join(info_d,'seq2geno_report')]
+if not args.dryrun:
+    target_data.append(os.path.join(info_d,'geno2pheno_report'))
 
 rule all:
     input:
@@ -86,23 +86,18 @@ rule seq2geno:
     input: 
         target_yml= os.path.join('{info_d}', 'seq2geno_inputs.yml')
     output: 
-        ## doesn't change the exact output folder
         sg_check= os.path.join('{info_d}', 'seq2geno_report')
     conda: os.path.join(seq2geno_home, 'install' , 'snakemake_env.yml')
-    log: os.path.join('{info_d}', 'seq2geno_log')
-    params:
-        #proc_complete_pattern= '[0-9]\+ steps.\+%.\+done',
-        proc_complete_pattern= 'Seq2Geno complete',
-        screenshot= os.path.join('{info_d}', 'seq2geno_screenshot')
+    log: os.path.join('{info_d}', 'seq2geno_screenshot')
     threads: args.cores
     shell:
         '''
         which seq2geno
-        seq2geno -f {input.target_yml} > {params.screenshot} 2> {log}
+        seq2geno -f {input.target_yml} &> {log}
         ## Only when SG was sucessfully done, and new or precomputed data
         ## are available, this step is considered successful
-        if [[ ! -z $(grep "{params.proc_complete_pattern}" {params.screenshot}) ]];then \
-printf "Seq2Geno: $(date)\ndetails recorded in: {log}" > {output.sg_check}; fi
+        printf "Seq2Geno: $(date)\ndetails recorded in: {log}" \
+> {output.sg_check};
         '''
 
 rule create_genml:

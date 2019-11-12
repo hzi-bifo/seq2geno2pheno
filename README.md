@@ -10,6 +10,7 @@
 - [Example dataset](#example)
 - [Input yaml file](#input)
 - [License](#license)
+- [Citation](#citation)
 - [Contact](#contact)
 ---
 ### <a name='what_is'></a>What is Seq2Geno2Pheno?
@@ -160,7 +161,7 @@ cd example_sgp_dataset
 
     - ref_fa, ref_gff, ref_gbk:	The reference data
 
-    The fasta, gff, and genbank files of a reference genome. They should have the same sequence accessions. 
+    The fasta, gff, and genbank files of a reference genome. The sequence accessions should be the same in these files. The genbank file need to include the genome sequences.
 
     - adaptor: The adaptor file (optional)
 
@@ -217,6 +218,9 @@ cd example_sgp_dataset
 
 ### <a name='license'></a>License
 Apache 2.0 (please refer to LICENSE)
+
+### <a name='citation'></a>Citation
+To be available
 
 ### <a name='contact'></a>Contact
 
