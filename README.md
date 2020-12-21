@@ -13,9 +13,9 @@ The study of microbial genotype-phenotype relationships plays a key role in many
 Seq2Geno2Pheno provides a comprehensive and configurable workflow for inferring reproducible and robust genotype-phenotype associations. The software includes the Seq2Geno (desktop-app) and Geno2Pheno (web-server) packages running jointly or independently using user-defined configuration files. Seq2Geno computes genomic features from microbial sequence data, from which Geno2Pheno then performs predictive-modeling, evaluates those predictors, and suggests biomarkers.
 
 ###  <a name='workflow'></a>Recommended workflow
-1. Use [seq2geno](https://github.com/hzi-bifo/seq2geno.git) to compute the features 
+1. Use [seq2geno](seq2geno/) to compute the features 
 2. Use the generator of genyml file (seq2geno/submission_tool/create_genyml.py) to make the input file for Geno2Pheno. The generated file can be further manually updated.
-3. Use the [data validator](https://github.com/hzi-bifo/Geno2PhenoClient) for Geno2Pheno server to validate and compress data into a zip file
+3. Use the [data validator](Geno2PhenoClient/) for Geno2Pheno server to validate and compress data into a zip file
 4. Submit the zip file to [Geno2Pheno server](http://genopheno.bifo.helmholtz-hzi.de)
 
 ### <a name='contact'></a>Contact
