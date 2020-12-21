@@ -2,6 +2,6 @@
 [submodule "Geno2PhenoClient"]
 	path = Geno2PhenoClient
 	url = https://github.com/hzi-bifo/Geno2PhenoClient
-[submodule "seq2geno"]
+[submodule "Seq2Geno"]
 	path = seq2geno
 	url = https://github.com/hzi-bifo/seq2geno.git
