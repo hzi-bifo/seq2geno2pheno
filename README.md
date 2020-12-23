@@ -3,6 +3,8 @@
 ### Contents
 - [What is Seq2Geno2Pheno?](#what_is)
 - [Recommended workflow](#workflow)
+- [License](#license)
+- [Download](#download)
 - [Contact](#contact)
 ---
 
@@ -17,6 +19,19 @@ Seq2Geno2Pheno provides a comprehensive and configurable workflow for inferring 
 2. Use the generator of genyml file (seq2geno/submission_tool/create_genyml.py) to make the input file for Geno2Pheno. The generated file can be further manually updated.
 3. Use the [data validator](Geno2PhenoClient/) for Geno2Pheno server to validate and compress data into a zip file
 4. Submit the zip file to [Geno2Pheno server](http://genopheno.bifo.helmholtz-hzi.de)
+
+###  <a name='download'></a>Download
+
+Please clone this repositroy __recursively__ like:
+```
+git clone --recurse-submodules https://github.com/hzi-bifo/seq2geno2pheno.git
+cd seq2geno2pheno
+git submodule update --init --recursive
+```
+
+### <a name='license'></a>License
+
+Please refer to LICENSE
 
 ### <a name='contact'></a>Contact
 
