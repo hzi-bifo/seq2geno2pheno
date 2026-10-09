@@ -24,7 +24,9 @@ From: almalinux:8
     # Java without its memory-mapped /tmp/hsperfdata file: on a node whose /tmp fills, the JVM
     # dies at start with SIGBUS (seen on bioinf039), and Prokka reads that as minced failing
     # its version check. -XX:-UsePerfData only disables JVM performance counters.
-    sed -i 's|^exec $java -jar|exec $java -XX:-UsePerfData -jar|' /opt/envs/prokka/bin/minced
+    # --follow-symlinks: bin/minced is a link; replacing it breaks the script's own jar lookup
+    sed -i --follow-symlinks 's|^exec $java -jar|exec $java -XX:-UsePerfData -jar|' /opt/envs/prokka/bin/minced
+    test -L /opt/envs/prokka/bin/minced
     grep -q -- '-XX:-UsePerfData' /opt/envs/prokka/bin/minced
     PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
 
@@ -34,5 +36,6 @@ From: almalinux:8
     export LC_ALL=C
 
 %test
+    minced --version | grep -q 0.4.2
     ps -p $$ > /dev/null
     prokka --version 2>&1 | grep -q "1.14.6"
