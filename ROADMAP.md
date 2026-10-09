@@ -36,15 +36,24 @@ Nothing is published. Status as of 2026-10-09.
      flip on pairs where RF or LR compete. Then repeat the model check on a species where RF
      wins.
    - **To do:** `--preset noleak` vs the `hu2024-variants/noleak` run.
-2. **Images.**
-   - `seq2geno2pheno-tools`: hzi-bifo/Roary @ `7402d1b` with its `install_dependencies.sh`
-     (BLAST 2.4.0, CD-HIT 4.6.6, MCL 14-137, PRANK, bedtools 2.26), the `perl5_22_env` pins,
-     mafft 7.310, jvarkit-msa2vcf 1.0, and s2g2p.
-   - `seq2geno2pheno`: s2g2p only.
-   - Verify the Prokka 1.14.6 BioContainers tag.
-   - Build as Apptainer images on the cluster (SLURM job), then Docker for CI.
-3. **End-to-end run** on a small real cohort (one species, a few hundred genomes) for every
-   preset, on SLURM.
+2. **Images: built on the HZI clusters** (`containers/build-hzi.sbatch`).
+   - The legacy envs come from the reproduction's exact package lists.
+   - Roary's Perl modules are at the versions the reproduction loaded.
+   - Each image's `%test` checks BLAST 2.4.0, mafft 7.310, msa2vcf, Roary and `ps`.
+   - A 3-genome Roary run inside the image produced BLAST results.
+   - **To do:** a Docker build for CI, and pin scikit-learn 0.24.1 for `hu2024` (item 1).
+3. **End-to-end runs.**
+   - **`hu2024`, 30 *E. faecium* genomes: succeeded.** Roary 32 min, indels 9 min; the k-mer
+     table equals KMC for all 30 genomes.
+   - **Running:** `noleak` on the same 30.
+   - **Running:** `hu2024` on all 277 genomes with the published random folds. Compare the
+     families as partitions (`dev/compare_pangenome.py`) and the score against 0.97377.
+   - Problems these runs found and fixed:
+     - images lacked `ps`;
+     - `$SHELL` was the host's zsh;
+     - assemblies were not staged into `KMERS`;
+     - JVM SIGBUS on a full `/tmp`;
+     - Roary's `bin/` was not on `PATH`.
 4. **The `g2p` grid.** Recover Geno2Pheno's server-side grids (ask E. Asgari) or drop the
    preset from v3.0.
 5. **Authors, name and licence.** Confirm with T.-H. Kuo, E. Asgari and A. C. McHardy. Then add
