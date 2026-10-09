@@ -19,15 +19,18 @@ Nothing is published. Status as of 2026-10-09.
 
 ## Before a release candidate
 
-1. **Equivalence on real data.** Check each port against the reproduction's outputs in the
-   amr_benchmark tree. Seq2Geno *E. faecium* has 277 genomes and is the smallest species.
-   - `s2g2p kmers` vs the KMC dumps (`merge_6mers_<id>.txt`);
-   - `s2g2p gpa` vs `gpa.mat`;
-   - `s2g2p compress` vs `gpa.mat_NONRDNT` and `indel.mat_NONRDNT`;
-   - `select_families` + `vcf2indel` vs `indel.mat`;
-   - `s2g2p evaluate --preset hu2024` vs the published per-fold scores of the reproduction
-     (`result_analysis.py` output);
-   - `--preset noleak` vs the `hu2024-variants/noleak` run.
+1. **Equivalence on real data.**
+   - **Feature ports: done.** `dev/validate_reproduction.py` on 7 species, 277 to 4,757
+     genomes, 49/49 checks identical (`docs/validation/`):
+     - k-mers vs the KMC dumps;
+     - `gpa.mat`;
+     - both featCompress tables and their groups;
+     - the aligned families;
+     - every `vcf2indel` call;
+     - `indel.mat`.
+   - **To do:** `s2g2p evaluate --preset hu2024` vs the published per-classifier, per-fold scores
+     (`dev/compare_hu2024_ml.py`, *E. faecium* vancomycin, 3 schemes, submitted).
+   - **To do:** `--preset noleak` vs the `hu2024-variants/noleak` run.
 2. **Images.**
    - `seq2geno2pheno-tools`: hzi-bifo/Roary @ `7402d1b` with its `install_dependencies.sh`
      (BLAST 2.4.0, CD-HIT 4.6.6, MCL 14-137, PRANK, bedtools 2.26), the `perl5_22_env` pins,

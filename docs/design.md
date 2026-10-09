@@ -40,13 +40,20 @@ From the code, not the paper (amr_benchmark `REPRODUCE_HU2024.md`):
    3. `vcf2indel` sets a genome to 0 if any copy carries an indel of 8 bp or more relative to
       the majority. A genome without the family is also 0.
 
-   A family becomes a column only if some genome is 0. Two quirks decide *which* families,
-   both reproduced under `indel_legacy_rules`:
-   - **The `head -n` subset.** Seq2Geno aligns the first N lines of `clustered_proteins`, not
-     the N families that pass the isolate filter. A column needs both.
-   - **Non-word characters.** The core list replaces only the first non-word character of a
-     name, while file names replace all of them. A family with such a character therefore
-     never finds its file.
+   A family becomes a column only if some genome is 0. Three quirks decide *which* families,
+   all reproduced under `indel_legacy_rules` and confirmed against the reproduction's own
+   `indel.mat` on seven species:
+   - **The `head -n` subset.** Seq2Geno aligns the first N lines of `clustered_proteins`, N
+     being the number of families in more than 2 isolates, not those N families. A rare family
+     that sorts early is aligned; a common one that sorts late is not.
+   - **Columns come from the `.Rtab`.** The rule declares the core list as an input but reads
+     every family from `gene_presence_absence.Rtab`. A family gets a column when an indel file
+     of exactly its name exists. So a rare but aligned family can get one: *S. aureus*
+     `group_650` (2 isolates) does.
+   - **Non-word characters.** File names replace every non-word character with `_`.
+     - Colliding families share one alignment: *S. aureus* `blaR1-2` and `blaR1_2` are aligned
+       together.
+     - A family whose name has such a character never finds a file of its own name.
 5. **Compression.** featCompress keeps one column per distinct pattern, in sorted pattern
    order, named `<first>|<n>`.
 6. **6-mers.** KMC canonical counts per record. They are StandardScaler-transformed over every

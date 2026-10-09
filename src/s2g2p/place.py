@@ -26,7 +26,7 @@ from typing import Mapping, Sequence
 import pandas as pd
 
 from .features.gpa import protein_to_family, read_clustered_proteins
-from .features.indel import add_and_call, file_key, read_ffn
+from .features.indel import add_and_call, read_family_index, read_ffn
 from .io import read_fasta
 
 BLAST_EVALUE = "1E-6"
@@ -154,29 +154,40 @@ def place_gpa(seq2fam: Mapping[str, str], query_faa: Mapping[str, str | os.PathL
 
 
 def place_indels(indel_columns: Sequence[str], aln_dir: str | os.PathLike, assignment: pd.DataFrame,
-                 query_ffn: Mapping[str, str | os.PathLike], threads: int = 1,
+                 query_ffn: Mapping[str, str | os.PathLike], query_gpa: pd.DataFrame, threads: int = 1,
                  mafft: str = "mafft", msa2vcf: str = "msa2vcf") -> tuple[pd.DataFrame, dict]:
     """Indel calls of the query genomes for the training table's indel columns
-    (``<family>_indel``). A genome without the family is 0, as the training table encodes it;
-    genomes with identical copies of a family are aligned once."""
+    (``<family>_indel``), by the rule the training table was built with
+    (:func:`s2g2p.features.indel.indel_matrix`): a genome with copies of the families in the
+    column's alignment gets its call; any other genome keeps its presence value for the family.
+    Genomes with identical copies are aligned once."""
+    index = read_family_index(Path(aln_dir) / "families.tsv")
+    stem_of = dict(zip(index.loc[index.candidate == "1", "family"], index.loc[index.candidate == "1", "stem"]))
+    members: dict[str, list[str]] = collections.defaultdict(list)
+    for fam, stem in zip(index["family"], index["stem"]):
+        if fam not in members[stem]:
+            members[stem].append(fam)
     by_fam: dict[str, dict[str, list[str]]] = collections.defaultdict(lambda: collections.defaultdict(list))
     for s, locus, fam in assignment.itertuples(index=False):
         by_fam[fam][s].append(locus)
     ffn = {s: read_ffn(p) for s, p in query_ffn.items()}
-    jobs, groups = [], {}
+    jobs, groups, fam_of = [], {}, {}
     for col in indel_columns:
         fam = col[: -len("_indel")]
-        aln = Path(aln_dir) / f"{file_key(fam)}.aln"
+        if fam not in stem_of:
+            raise KeyError(f"indel column {col}: {fam} is not a candidate in {aln_dir}/families.tsv")
+        fam_of[col] = fam
+        aln = Path(aln_dir) / f"{stem_of[fam]}.aln"
         if not aln.exists():
             raise FileNotFoundError(f"no training alignment {aln} for indel column {col}")
         by_content: "collections.OrderedDict[tuple, list]" = collections.OrderedDict()
         for s in query_ffn:
-            recs = [ffn[s][l] for l in by_fam.get(fam, {}).get(s, []) if l in ffn[s]]
+            recs = [ffn[s][l] for m in members[stem_of[fam]] for l in by_fam.get(m, {}).get(s, []) if l in ffn[s]]
             if recs:
                 by_content.setdefault(tuple(sorted(q for _, q in recs)), []).append((s, recs))
-        for members in by_content.values():
-            rep, recs = members[0]
-            groups[(col, rep)] = [m[0] for m in members]
+        for grp in by_content.values():
+            rep, recs = grp[0]
+            groups[(col, rep)] = [g[0] for g in grp]
             jobs.append((col, str(aln), rep, recs))
 
     def one(job):
@@ -189,7 +200,7 @@ def place_indels(indel_columns: Sequence[str], aln_dir: str | os.PathLike, assig
             for s in groups[(col, rep)]:
                 calls[(col, s)] = v
     samples = list(query_ffn)
-    table = pd.DataFrame([[calls.get((c, s), 0) for c in indel_columns] for s in samples],
-                         index=samples, columns=list(indel_columns), dtype=int)
+    table = pd.DataFrame([[calls.get((c, s), int(query_gpa.at[s, fam_of[c]])) for c in indel_columns]
+                          for s in samples], index=samples, columns=list(indel_columns), dtype=int)
     table.index.name = "sample"
     return table, {"indel_columns": len(indel_columns), "indel_jobs": len(jobs)}

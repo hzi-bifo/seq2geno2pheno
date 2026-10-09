@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from s2g2p.features.compress import compress  # noqa: E402
 from s2g2p.features.gpa import gpa_from_roary, read_rename_map  # noqa: E402
-from s2g2p.features.indel import file_key, indel_matrix, select_families, vcf2indel  # noqa: E402
+from s2g2p.features.indel import indel_matrix, select_families, vcf2indel  # noqa: E402
 from s2g2p.features.kmer import count_canonical, read_kmc_dump  # noqa: E402
 
 ROWS = []
@@ -85,20 +85,18 @@ def check_compress(den):
 
 
 def check_indels(den, rename):
-    sel = select_families(den / "roary" / "gene_presence_absence.csv", den / "roary" / "clustered_proteins",
-                          min_isolates=2, legacy=True)
+    sel = select_families(den / "roary", min_isolates=2, legacy=True)
     vcfs = {p.stem for p in (den / "indels").glob("*.vcf")}
-    aligned = {file_key(f) for f in sel.aligned}
-    report("families aligned", aligned == vcfs, f"{len(aligned)} selected, {len(vcfs)} published vcf")
+    report("families aligned", set(sel.groups) == vcfs,
+           f"{len(sel.aligned)} families in {len(sel.groups)} alignments, {len(vcfs)} published vcf")
 
     calls, diff = {}, []
-    key2fam = {file_key(f): f for f in sel.aligned}
     for key in sorted(vcfs):
         mine = vcf2indel(den / "indels" / f"{key}.vcf")
         ref = pd.read_csv(den / "indels" / f"{key}_indels.txt", sep="\t", index_col=0).iloc[:, 0]
         if {str(k): int(v) for k, v in ref.items()} != mine:
             diff.append(key)
-        calls[key2fam.get(key, key)] = mine
+        calls[key] = mine
     report("vcf2indel", not diff, f"{len(vcfs) - len(diff)}/{len(vcfs)} families identical" + (f"; e.g. {diff[:3]}" if diff else ""))
 
     gpa_raw = gpa_from_roary(den / "roary" / "gene_presence_absence.csv",
@@ -111,6 +109,8 @@ def check_indels(den, rename):
     if not same_cols:
         a, b = set(mine.columns), set(ref.columns)
         detail += f"; only ours {len(a - b)} e.g. {sorted(a - b)[:3]}, only published {len(b - a)} e.g. {sorted(b - a)[:3]}"
+        if a == b:
+            detail += "; same set, different order"
     report("indel.mat", ok, detail)
 
 

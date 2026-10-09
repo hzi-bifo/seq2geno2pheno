@@ -1,0 +1,8 @@
+check	result	detail
+gpa	identical	(3325, 38201); columns same, rows same
+compress gpa.mat	identical	38201 -> 18675 (published 18675); groups same
+compress indel.mat	identical	2996 -> 2788 (published 2788); groups same
+families aligned	identical	17007 families in 17006 alignments, 17006 published vcf
+vcf2indel	identical	17006/17006 families identical
+indel.mat	identical	2996 columns (published 2996)
+kmers	identical	100/100 genomes identical

@@ -119,7 +119,7 @@ def cmd_place(args):
     rows = [dict(file="gpa.tsv", train=len(train_gpa), placed=len(q_gpa), columns=train_gpa.shape[1], **st1, **st2)]
     if train_indel is not None:
         q_ind, st3 = place_indels(list(train_indel.columns), pg / "aln", assignment,
-                                  {s: _annotation(args.annotations, s, "ffn") for s in query},
+                                  {s: _annotation(args.annotations, s, "ffn") for s in query}, q_gpa,
                                   threads=args.threads, mafft=args.mafft, msa2vcf=args.msa2vcf)
         io.write_matrix(pd.concat([train_indel, q_ind]), out_dir / "indel.tsv")
         rows.append(dict(file="indel.tsv", train=len(train_indel), placed=len(q_ind),

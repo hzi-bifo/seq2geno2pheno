@@ -79,27 +79,33 @@ def roary_csv(path, fams):
 
 
 def test_select_families_legacy_rules(tmp_path):
-    fams = [("famA", 3, {}), ("famB", 1, {}), ("fam-C", 4, {}), ("famD", 5, {}), ("famE", 3, {})]
-    roary_csv(tmp_path / "gpa.csv", fams)
+    fams = [("famA", 3, {}), ("famB", 1, {}), ("fam-C", 4, {}), ("famD", 5, {}), ("famE", 3, {}), ("fam_C", 1, {})]
+    roary_csv(tmp_path / "gene_presence_absence.csv", fams)
     # clustered_proteins in another order: Roary sorts it by its own rule
-    (tmp_path / "cp").write_text("famD: a\nfamB: b\nfam-C: c\nfamA: d\nfamE: e\n")
-    sel = select_families(tmp_path / "gpa.csv", tmp_path / "cp", min_isolates=2, legacy=True)
-    # core (> 2 isolates): famA, fam-C, famD, famE -> 4 -> head -n 4 of clustered_proteins
-    assert sel.aligned == ["famD", "famB", "fam-C", "famA"]
-    assert sel.candidates == ["famA", "famD"]          # famE not aligned, fam-C has a non-word char
-    assert sel.skipped_nonword == ["fam-C"]
-    native = select_families(tmp_path / "gpa.csv", tmp_path / "cp", min_isolates=2, legacy=False)
-    assert native.candidates == ["famA", "fam-C", "famD", "famE"]
+    (tmp_path / "clustered_proteins").write_text("famD: a\nfamB: b\nfam-C: c\nfamA: d\nfamE: e\nfam_C: f\n")
+    sel = select_families(tmp_path, min_isolates=2, legacy=True)
+    # 4 families in > 2 isolates -> `head -n 4` of clustered_proteins is aligned, famB included
+    assert list(sel.groups) == ["famD", "famB", "fam_C", "famA"]
+    assert sel.groups["fam_C"] == ["fam-C"]
+    # columns: table order, a family whose exact name has an alignment file. famB is rare but
+    # aligned; famE is common but not aligned; fam-C's file is fam_C, which the twin picks up.
+    assert sel.candidates == [("famA", "famA"), ("famB", "famB"), ("famD", "famD"), ("fam_C", "fam_C")]
+    assert sel.renamed == ["fam-C"]
+    native = select_families(tmp_path, min_isolates=2, legacy=False)
+    assert [f for f, _ in native.candidates] == ["famA", "fam-C", "famD", "famE"]
+    assert len({stem for _, stem in native.candidates}) == 4
     assert file_key("fam-C") == "fam_C"
 
 
-def test_family_fastas(tmp_path):
-    (tmp_path / "cp").write_text("famA: s1_00001\ts2_00001\nfamB: s1_00002\n")
+def test_family_fastas_merge_colliding_names(tmp_path):
+    (tmp_path / "cp").write_text("famA: s1_00001\ts2_00001\nfam-B: s1_00002\nfam_B: s2_00002\n")
     for s in ("s1", "s2"):
         (tmp_path / f"{s}.ffn").write_text(f">{s}_00001 prod\nACGT\nAC\n>{s}_00002 other\nGGG\n")
-    paths = write_family_fastas(tmp_path / "cp", ["famA"], [tmp_path / "s1.ffn", tmp_path / "s2.ffn"], tmp_path / "out")
-    assert [p.name for p in paths] == ["famA.fasta"]
+    groups = {"famA": ["famA"], "fam_B": ["fam-B", "fam_B"]}
+    paths = write_family_fastas(tmp_path / "cp", groups, [tmp_path / "s1.ffn", tmp_path / "s2.ffn"], tmp_path / "out")
+    assert [p.name for p in paths] == ["famA.fasta", "fam_B.fasta"]
     assert paths[0].read_text() == ">s1_00001 prod\nACGT\nAC\n>s2_00001 prod\nACGT\nAC\n"
+    assert paths[1].read_text() == ">s1_00002 other\nGGG\n>s2_00002 other\nGGG\n"
 
 
 def generate_indel_features_reference(gene_list, gpa, calls):
@@ -121,6 +127,6 @@ def test_indel_matrix_matches_published():
     gpa = pd.DataFrame({"f1": [1, 1, 0], "f2": [1, 1, 1], "f3": [1, 0, 1]}, index=["a", "b", "c"])
     calls = {"f1": {"a": 0, "b": 1}, "f2": {"a": 1, "b": 1, "c": 1}, "f3": {"a": 1, "c": 0}}
     ref = generate_indel_features_reference(["f1", "f2", "f3"], gpa, calls)
-    out = indel_matrix(gpa, ["f1", "f2", "f3"], calls)
+    out = indel_matrix(gpa, [(f, f) for f in ["f1", "f2", "f3"]], calls)
     assert list(out.columns) == ["f1_indel", "f3_indel"]
     assert (out.to_numpy() == ref.to_numpy()).all()

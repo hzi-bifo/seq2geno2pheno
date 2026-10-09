@@ -41,3 +41,18 @@ def test_place_exact_matches_need_no_blast(tmp_path):
     assert st["query_blasted"] == 0
     assert assign.to_dict("records") == [{"sample": "q1", "locus": "q1_1", "family": "famB"}]
     assert list(read_clustered_proteins(tmp_path / "cp")) == ["famA", "famB"]
+
+
+def test_place_indels_without_copies_keeps_presence(tmp_path):
+    from s2g2p.place import place_indels
+
+    aln = tmp_path / "aln"
+    aln.mkdir()
+    (aln / "fam_B.aln").write_text(">t1_1\nACGT\n")
+    (aln / "families.tsv").write_text("family\tstem\tcandidate\nfam-B\tfam_B\t0\nfam_B\tfam_B\t1\n")
+    (tmp_path / "q1.ffn").write_text(">q1_1 x\nACGT\n")
+    assignment = pd.DataFrame(columns=["sample", "locus", "family"])
+    q_gpa = pd.DataFrame({"fam-B": [0], "fam_B": [1]}, index=["q1"])
+    table, st = place_indels(["fam_B_indel"], aln, assignment, {"q1": tmp_path / "q1.ffn"}, q_gpa,
+                             mafft="/nonexistent", msa2vcf="/nonexistent")
+    assert table.loc["q1", "fam_B_indel"] == 1 and st["indel_jobs"] == 0

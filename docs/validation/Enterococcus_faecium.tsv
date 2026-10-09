@@ -2,7 +2,7 @@ check	result	detail
 gpa	identical	(277, 13399); columns same, rows same
 compress gpa.mat	identical	13399 -> 4637 (published 4637); groups same
 compress indel.mat	identical	697 -> 629 (published 629); groups same
-families aligned	identical	8056 selected, 8056 published vcf
+families aligned	identical	8056 families in 8056 alignments, 8056 published vcf
 vcf2indel	identical	8056/8056 families identical
 indel.mat	identical	697 columns (published 697)
-kmers	identical	277/277 genomes identical
+kmers	identical	100/100 genomes identical
