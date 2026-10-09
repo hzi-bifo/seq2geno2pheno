@@ -17,9 +17,9 @@ mkdir -p containers/images
 scratch=$(mktemp -d /tmp/s2g2p-build.XXXXXX)
 trap 'rm -rf "$scratch"' EXIT
 export APPTAINER_TMPDIR="$scratch"
-declare -A DEF=([s2g2p]=containers/s2g2p/s2g2p.def [prokka]=containers/prokka/prokka.def [tools]=containers/tools/tools.def)
-declare -A SIF=([s2g2p]=s2g2p.sif [prokka]=prokka-1.14.6.sif [tools]=s2g2p-tools.sif)
-for img in "${@:-s2g2p prokka tools}"; do
+declare -A DEF=([s2g2p]=containers/s2g2p/s2g2p.def [prokka]=containers/prokka/prokka.def [tools]=containers/tools/tools.def [hu2024ml]=containers/hu2024ml/hu2024ml.def)
+declare -A SIF=([s2g2p]=s2g2p.sif [prokka]=prokka-1.14.6.sif [tools]=s2g2p-tools.sif [hu2024ml]=s2g2p-hu2024ml.sif)
+for img in "${@:-s2g2p prokka tools hu2024ml}"; do
   for i in $img; do
     echo "=== $i $(date -Is)"
     # one cache per image: two builds unpacking the same base layer into one NFS cache collide

@@ -28,3 +28,7 @@ ml:
   tie_break: first           # result_analysis.py: MEAN.index() makes its lowest-std rule a no-op
   scoring: f1_macro
 predict: false               # cohort-fitted features cannot be built for an unseen genome
+# The models run in the published model environment (scikit-learn 0.24.1; containers/hu2024ml),
+# where s2g2p matches the published per-classifier scores exactly. Other presets use the
+# current scikit-learn.
+ml_env: hu2024

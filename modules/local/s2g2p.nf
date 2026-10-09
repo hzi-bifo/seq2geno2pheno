@@ -226,8 +226,9 @@ process PLACE {
 }
 
 process EVALUATE {
+    // The image follows the preset's ml_env (hu2024: the published scikit-learn 0.24.1).
     label 'process_high'
-    container params.containers.s2g2p
+    container { ml_env == 'hu2024' ? params.containers.hu2024ml : params.containers.s2g2p }
     publishDir "${params.outdir}/evaluation", mode: params.publish_dir_mode
 
     input:
@@ -237,6 +238,7 @@ process EVALUATE {
     path tables
     val preset
     val scope
+    val ml_env
 
     output:
     path 'results/**'

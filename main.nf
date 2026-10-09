@@ -56,7 +56,7 @@ workflow {
         gpa = GPA(pg)
         ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
         tables = COMPRESS(gpa.join(ind.tables))          // [label, gpa_NONRDNT.tsv, indel_NONRDNT.tsv]
-        EVALUATE(sheet, folds, kmers, tables.map { it[1..2] }.collect(), params.preset, 'cohort')
+        EVALUATE(sheet, folds, kmers, tables.map { it[1..2] }.collect(), params.preset, 'cohort', preset.ml_env ?: 'current')
     }
     else if (params.mode == 'evaluate' && feats.fit_scope == 'fold') {
         splits = SPLIT(sheet, folds)
@@ -71,7 +71,7 @@ workflow {
         gpa = GPA(pg)
         ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
         placed = PLACE(gpa.join(ind.tables).join(ind.aln).join(pg).join(jobs.map { tuple(it[0], it[2]) }), annot_dirs)
-        EVALUATE(sheet, folds, kmers, placed.map { it[1] }.collect(), params.preset, 'fold')
+        EVALUATE(sheet, folds, kmers, placed.map { it[1] }.collect(), params.preset, 'fold', preset.ml_env ?: 'current')
     }
     else if (params.mode == 'train') {
         if (!preset.predict) {

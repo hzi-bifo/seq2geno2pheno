@@ -43,11 +43,15 @@ final score (`result/hu2024-repro/reproduced_f1_macro.tsv`).
 
 *E. faecium* vancomycin:
 
-| Folds | Classifier × fold macro-F1 identical | Final macro-F1, s2g2p | Final macro-F1, published code |
-|---|---:|---:|---:|
-| random | 37/40 | 0.9737736929124945 | 0.9737736929124945 |
-| phylotree | 35/40 | 0.9892442396313365 | 0.9892442396313365 |
-| KMA (support-weighted) | 39/40 | 0.947718517674583 | 0.947718517674583 |
+| Folds | Identical, scikit-learn 1.6.1 | Identical, scikit-learn 0.24.1 | Final macro-F1, s2g2p | Final macro-F1, published code |
+|---|---:|---:|---:|---:|
+| random | 37/40 | **40/40** | 0.9737736929124945 | 0.9737736929124945 |
+| phylotree | 35/40 | **40/40** | 0.9892442396313365 | 0.9892442396313365 |
+| KMA (support-weighted) | 39/40 | **40/40** | 0.947718517674583 | 0.947718517674583 |
+
+The scikit-learn 0.24.1 column ran in the published model environment (`amr_env`: Python 3.7,
+numpy 1.20.1, pandas 1.2.2; `containers/hu2024ml/`). There, **every classifier on every fold
+matches, 120 of 120**.
 
 **The final score is identical in all three fold schemes, to every printed digit.**
 
@@ -58,8 +62,8 @@ everywhere, so none of the differences reaches the reported score.
 
 That is a property of this pair, not a guarantee. On a pair where random forest or logistic
 regression wins or nearly wins, a version-induced shift in its inner score can change the
-selection. Bit-identical reproduction of `hu2024` in general needs scikit-learn 0.24.1, which
-the `hu2024` image should pin (ROADMAP.md).
+selection. In the published environment that risk is gone (120/120 above), which is why the
+`hu2024` preset runs its models there.
 
 Per-fold detail: `dev-runs/hu2024-ml/*/compare_<scheme>.tsv` (not committed; regenerate with
 the script).
