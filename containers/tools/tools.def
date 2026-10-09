@@ -95,7 +95,7 @@ MODS
     R=/opt/roary
     cat > /usr/local/bin/roary <<EOS
 #!/bin/bash
-export PATH=$R/build/fasttree:$R/build/mcl-14-137/src/alien/oxygen/src:$R/build/mcl-14-137/src/shmcl:$R/build/ncbi-blast-2.4.0+/bin:$R/build/prank-msa-master/src:$R/build/cd-hit-v4.6.6-2016-0711:$R/build/bedtools2/bin:$R/build/parallel-20160722/src:/opt/envs/perl5_22_env/bin:\$PATH
+export PATH=$R/bin:$R/build/fasttree:$R/build/mcl-14-137/src/alien/oxygen/src:$R/build/mcl-14-137/src/shmcl:$R/build/ncbi-blast-2.4.0+/bin:$R/build/prank-msa-master/src:$R/build/cd-hit-v4.6.6-2016-0711:$R/build/bedtools2/bin:$R/build/parallel-20160722/src:/opt/envs/perl5_22_env/bin:\$PATH
 export PERL5LIB=$R/lib:$R/build/bedtools2/lib\${PERL5LIB:+:\$PERL5LIB}
 exec $R/bin/roary "\$@"
 EOS
@@ -118,6 +118,7 @@ EOS
     mafft --version 2>&1 | grep -q "7.310"
     printf ">a_1\nACGT\n>b_1\nACGA\n" | msa2vcf > /dev/null
     roary -w | grep -q "3.8"
+    PATH=/opt/roary/bin:$PATH command -v extract_proteome_from_gff > /dev/null
     s2g2p --version
 
 %labels
