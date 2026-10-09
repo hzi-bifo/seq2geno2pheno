@@ -33,19 +33,23 @@ process PROKKA {
 }
 
 process KMERS {
+    // Assemblies are staged (asm/<n>/<file>), never read from the sheet's host paths: those
+    // are not mounted inside the container.
     label 'process_medium'
     container params.containers.s2g2p
     publishDir "${params.outdir}/features", mode: params.publish_dir_mode
 
     input:
-    path sheet
+    tuple val(ids), path(fastas, stageAs: 'asm/?/*')
 
     output:
     path 'kmers.tsv'
 
     script:
+    def rows = [ids, fastas instanceof List ? fastas : [fastas]].transpose().collect { s, f -> "${s}\t${f}" }.join('\n')
     """
-    s2g2p kmers --samplesheet ${sheet} --k ${params.kmer_k} --threads ${task.cpus} --out kmers.tsv
+    printf 'sample\tassembly\n${rows}\n' > assemblies.tsv
+    s2g2p kmers --samplesheet assemblies.tsv --k ${params.kmer_k} --threads ${task.cpus} --out kmers.tsv
     """
 
     stub:

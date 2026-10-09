@@ -48,7 +48,7 @@ workflow {
 
     annotations = PROKKA(samples)                       // [sample, dir <sample>/]
     annot_dirs = annotations.map { it[1] }.collect()
-    kmers = KMERS(sheet)
+    kmers = KMERS(samples.toList().map { l -> tuple(l.collect { it[0] }, l.collect { it[1] }) })
 
     if (params.mode == 'evaluate' && feats.fit_scope == 'cohort') {
         all_ids = samples.map { it[0] }.collectFile(name: 'cohort.txt', newLine: true)

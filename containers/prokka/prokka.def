@@ -24,6 +24,7 @@ From: almalinux:8
     PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
 
 %environment
+    export SHELL=/bin/bash
     export PATH=/opt/envs/prokka/bin:$PATH
     export LC_ALL=C
 

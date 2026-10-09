@@ -15,6 +15,7 @@ From: mambaorg/micromamba:1.5.10
     micromamba clean -a -y
 
 %environment
+    export SHELL=/bin/bash
     export PATH=/opt/conda/bin:$PATH
 
 %test

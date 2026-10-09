@@ -103,6 +103,7 @@ EOS
     chmod +x /usr/local/bin/roary /usr/local/bin/blastp /usr/local/bin/makeblastdb /usr/local/bin/mafft /usr/local/bin/msa2vcf
 
 %environment
+    export SHELL=/bin/bash
     export PATH=/usr/local/bin:/opt/envs/s2g2p/bin:$PATH
     export LC_ALL=C
 
