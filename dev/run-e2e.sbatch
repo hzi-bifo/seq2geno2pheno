@@ -13,8 +13,10 @@ set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 source ~/miniforge3/etc/profile.d/conda.sh
 conda activate s2g2p-dev
-export NXF_HOME="$PWD/.nextflow-home" NXF_OPTS="-Xms512m -Xmx4g"
 : "${INPUT:?}" "${PRESET:?}" "${OUT:?}"
+# One Nextflow cache per output dir: with a shared one, -resume attaches to whichever run
+# was launched last from this directory, and a second concurrent run dies on its lock.
+export NXF_HOME="$PWD/.nextflow-home" NXF_OPTS="-Xms512m -Xmx4g" NXF_CACHE_DIR="$OUT/.nextflow"
 ACCOUNT="${ACCOUNT:-${SLURM_JOB_ACCOUNT:-b_algbio}}"
 PARTITION="${PARTITION:-${SLURM_JOB_PARTITION:-cpu}}"
 nextflow run . -profile hzi,slurm,apptainer -resume \

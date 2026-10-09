@@ -45,7 +45,11 @@ Nothing is published. Status as of 2026-10-09.
 3. **End-to-end runs.**
    - **`hu2024`, 30 *E. faecium* genomes: succeeded.** Roary 32 min, indels 9 min; the k-mer
      table equals KMC for all 30 genomes.
-   - **Running:** `noleak` on the same 30.
+   - **`noleak`, same 30: succeeded.**
+     - One pangenome per fold from 20 training genomes; Roary 18-21 min per fold.
+     - Placement put 10 held-out genomes per fold: 93-97% of their proteins found a family on
+       average. One genome dropped to 70%, plausible with a 20-genome reference.
+     - 2 of 30 predictions differ from `hu2024`.
    - **Running:** `hu2024` on all 277 genomes with the published random folds. Compare the
      families as partitions (`dev/compare_pangenome.py`) and the score against 0.97377.
    - Problems these runs found and fixed:
@@ -53,7 +57,8 @@ Nothing is published. Status as of 2026-10-09.
      - `$SHELL` was the host's zsh;
      - assemblies were not staged into `KMERS`;
      - JVM SIGBUS on a full `/tmp`;
-     - Roary's `bin/` was not on `PATH`.
+     - Roary's `bin/` was not on `PATH`;
+     - concurrent runs shared one Nextflow cache (now `NXF_CACHE_DIR` per output).
 4. **The `g2p` grid.** Recover Geno2Pheno's server-side grids (ask E. Asgari) or drop the
    preset from v3.0.
 5. **Authors, name and licence.** Confirm with T.-H. Kuo, E. Asgari and A. C. McHardy. Then add
