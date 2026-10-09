@@ -114,8 +114,11 @@ def read_matrix(path: str | os.PathLike, dtype=None) -> pd.DataFrame:
     with open(path) as fh:
         first = fh.readline().rstrip("\n").split("\t")[0]
     # The id column is always text: read as a number, '1352.11330' would become '1352.1133'.
-    df = pd.read_csv(path, sep="\t", index_col=0, dtype=str if dtype is None else {first: str},
+    # It is read as an ordinary column and then made the index, because older pandas (1.2)
+    # ignores a dtype given for the index_col column.
+    df = pd.read_csv(path, sep="\t", dtype=str if dtype is None else {first: str},
                      keep_default_na=False, na_values=[""])
+    df = df.set_index(first)
     df.index = df.index.astype(str)
     df.index.name = "sample"
     if dtype is not None:
