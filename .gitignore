@@ -1,3 +1,12 @@
 env/
 
 *.pyc
+log/
+work-test/
+results-test/
+.nextflow*
+.nextflow-home/
+work/
+__pycache__/
+*.egg-info/
+containers/images/

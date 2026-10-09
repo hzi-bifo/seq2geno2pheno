@@ -1,0 +1,17 @@
+# Pins from Seq2Geno 4347da5 denovo/{perl5_22_env,indel_cluster_env,indel_env}.yml, the tools
+# the legacy steps call. DRAFT: perl5_22_env's full perl-* list still has to be carried over and
+# solved; channels conda-forge/bioconda only (defaults is not reachable from the HZI clusters).
+name: legacy
+channels: [conda-forge, bioconda]
+dependencies:
+  - perl=5.22.0.1
+  - perl-bioperl=1.6.924
+  - perl-moose=2.1804
+  - perl-graph=0.9704
+  - perl-text-csv
+  - perl-exception-class
+  - perl-log-log4perl
+  - perl-file-grep
+  - perl-file-slurper
+  - mafft=7.310
+  - jvarkit-msa2vcf=1.0

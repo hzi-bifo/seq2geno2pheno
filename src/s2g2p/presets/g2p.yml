@@ -1,0 +1,29 @@
+# Seq2Geno features modelled under Geno2Pheno's protocol, run locally (the Geno2Pheno server is
+# no longer reachable): each feature table scored as its own feature set, k-mers L1-normalised,
+# group-aware ("tree-based") inner CV when the sample sheet has a `group` column.
+# EXPERIMENTAL: Geno2Pheno's own hyperparameter grids are not in its public client, so `grid: g2p`
+# is a stand-in (see s2g2p/ml/grids.py). Do not report it as Geno2Pheno until it is replaced.
+name: g2p
+status: experimental
+summary: >-
+  Seq2Geno's cohort-fitted tables, one model per feature set (6-mers L1-normalised, gene
+  presence, indels), group-aware inner CV. Grid is a stand-in for Geno2Pheno's.
+features:
+  annotator: prokka
+  pangenome: roary
+  roary_args: "-e --mafft -g 700000 -z"
+  fit_scope: cohort
+  compress: cohort
+  kmer_k: 6
+  indel_min_isolates: 2
+  indel_legacy_rules: true
+ml:
+  blocks: [kmer, gpa, indel]
+  transforms: {kmer: l1, gpa: none, indel: none}
+  feature_sets: separate
+  classifiers: [lsvm, svm, lr, rf]
+  grid: g2p
+  inner_cv: group_kfold:10   # falls back to stratified:10 without a `group` column
+  tie_break: first
+  scoring: f1_macro
+predict: false
