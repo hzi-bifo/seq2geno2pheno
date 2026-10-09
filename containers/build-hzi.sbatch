@@ -12,7 +12,9 @@
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 mkdir -p containers/images
-scratch=$(mktemp -d "${TMPDIR:-/tmp}/s2g2p-build.XXXXXX")
+# The build sandbox must be node-local: the nodes' $TMPDIR is on NFS, where rpm's
+# unpack-then-rename fails ("cpio: open failed").
+scratch=$(mktemp -d /tmp/s2g2p-build.XXXXXX)
 trap 'rm -rf "$scratch"' EXIT
 export APPTAINER_TMPDIR="$scratch"
 declare -A DEF=([s2g2p]=containers/s2g2p/s2g2p.def [prokka]=containers/prokka/prokka.def [tools]=containers/tools/tools.def)

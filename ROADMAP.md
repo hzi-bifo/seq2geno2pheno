@@ -28,8 +28,13 @@ Nothing is published. Status as of 2026-10-09.
      - the aligned families;
      - every `vcf2indel` call;
      - `indel.mat`.
-   - **To do:** `s2g2p evaluate --preset hu2024` vs the published per-classifier, per-fold scores
-     (`dev/compare_hu2024_ml.py`, *E. faecium* vancomycin, 3 schemes, submitted).
+   - **Models: done for one pair.** `s2g2p evaluate --preset hu2024` reproduces the published
+     final macro-F1 exactly on *E. faecium* vancomycin under random, phylotree and KMA folds.
+     35-39 of 40 per-classifier scores match; the rest differ through scikit-learn 1.6.1 vs
+     0.24.1 (`docs/validation/README.md`).
+   - **To do:** a `hu2024` run environment pinned to scikit-learn 0.24.1, so selection cannot
+     flip on pairs where RF or LR compete. Then repeat the model check on a species where RF
+     wins.
    - **To do:** `--preset noleak` vs the `hu2024-variants/noleak` run.
 2. **Images.**
    - `seq2geno2pheno-tools`: hzi-bifo/Roary @ `7402d1b` with its `install_dependencies.sh`

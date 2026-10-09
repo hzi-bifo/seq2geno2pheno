@@ -26,8 +26,12 @@ From: almalinux:8
 
 %post
     set -eu
-    dnf -y install gcc gcc-c++ make zlib-devel bzip2 bzip2-devel xz wget curl tar git which \
-        findutils procps-ng diffutils libnsl perl-core
+    # As mapped root, tar would restore archive owners (e.g. uid 501), which a root-mapped
+    # build namespace refuses; Roary's installer runs under set -e and stops on it.
+    export TAR_OPTIONS=--no-same-owner
+    # no git (it pulls openssh, whose setuid files cannot be chowned in a root-mapped build)
+    dnf -y install gcc gcc-c++ make zlib-devel bzip2 bzip2-devel xz wget curl tar which \
+        findutils diffutils libnsl perl-core
     dnf clean all
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
     export MAMBA_ROOT_PREFIX=/opt/conda
@@ -38,8 +42,10 @@ From: almalinux:8
     /opt/envs/s2g2p/bin/pip install --no-deps /opt/s2g2p
 
     # Roary fork and its bundled dependencies
-    git clone https://github.com/hzi-bifo/Roary.git /opt/roary
-    cd /opt/roary && git checkout 7402d1bab868d73b9c1e7cf30e8af8c5b2578313
+    mkdir -p /opt/roary
+    curl -Ls https://github.com/hzi-bifo/Roary/archive/7402d1bab868d73b9c1e7cf30e8af8c5b2578313.tar.gz \
+        | tar -xz --strip-components=1 -C /opt/roary
+    cd /opt/roary
     # Its last step (MAFFT 7.271 from mafft.cbrc.jp) did not build in the reproduction either;
     # Roary's --mafft then used perl5_22_env's mafft 7.310. The tools that did build are checked
     # explicitly below, so a failure there cannot pass silently.

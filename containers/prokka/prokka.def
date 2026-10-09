@@ -12,10 +12,11 @@ From: almalinux:8
 
 %post
     set -eu
-    dnf -y install bzip2 which findutils procps-ng && dnf clean all
+    # libgomp: the env relied on the host OS for it (its BLAST links libgomp.so.1)
+    dnf -y install bzip2 which findutils libgomp && dnf clean all
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
     MAMBA_ROOT_PREFIX=/opt/conda micromamba create -y -p /opt/envs/prokka --file /opt/build/prokka_env.explicit.txt
-    /opt/envs/prokka/bin/prokka --setupdb
+    PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
 
 %environment
     export PATH=/opt/envs/prokka/bin:$PATH
