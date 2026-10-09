@@ -1,0 +1,25 @@
+# Prokka 1.14.6 from the exact package list of Seq2Geno's prokka_env as the reproduction ran it
+# (prokka 1.14.6 pl5321hdfd78af_5, prodigal 2.6.3, BLAST 2.13.0, hmmer 3.3.2, ...). Gene names
+# feed Roary's family names, so the annotation stack is pinned, not just Prokka.
+# Note: 60 of its packages come from the `anaconda` channel, as in the published environment;
+# check Anaconda's terms of service before redistributing this image.
+#   apptainer build --fakeroot containers/images/prokka-1.14.6.sif containers/prokka/prokka.def
+Bootstrap: docker
+From: almalinux:8
+
+%files
+    containers/prokka/prokka_env.explicit.txt /opt/build/prokka_env.explicit.txt
+
+%post
+    set -eu
+    dnf -y install bzip2 which findutils procps-ng && dnf clean all
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
+    MAMBA_ROOT_PREFIX=/opt/conda micromamba create -y -p /opt/envs/prokka --file /opt/build/prokka_env.explicit.txt
+    /opt/envs/prokka/bin/prokka --setupdb
+
+%environment
+    export PATH=/opt/envs/prokka/bin:$PATH
+    export LC_ALL=C
+
+%test
+    prokka --version 2>&1 | grep -q "1.14.6"

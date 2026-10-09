@@ -1,0 +1,89 @@
+# seq2geno2pheno-tools: the legacy toolchain of the published method, plus s2g2p.
+# Build from the repository root (fakeroot works on the HZI compute nodes):
+#   apptainer build --fakeroot containers/images/s2g2p-tools.sif containers/tools/tools.def
+#
+# Every conda environment is created from the exact package list (conda list --explicit --md5)
+# of the environment Seq2Geno built and ran in the Hu et al. 2024 reproduction, so the versions
+# are the ones that produced the validated tables -- not a re-solve of 2016-era pins.
+#   perl5_22_env        Roary's Perl 5.22 + BioPerl, mafft 7.310   (Seq2Geno rule `roary`)
+#   indel_cluster_env   mafft 7.310                                 (rule indel_align_families)
+#   indel_env           jvarkit-msa2vcf 1.0 + openjdk               (rule indel_msa2vcf)
+# Roary itself is Seq2Geno's fork, hzi-bifo/Roary @ 7402d1b, built by its own
+# install_dependencies.sh (BLAST 2.4.0, CD-HIT 4.6.6, MCL 14-137, bedtools 2.26, parallel
+# 20160722, PRANK, FastTree); its Perl modules come from Seq2Geno's install_perl_mods.sh.
+Bootstrap: docker
+From: almalinux:8
+
+%files
+    containers/tools/perl5_22_env.explicit.txt /opt/build/perl5_22_env.explicit.txt
+    containers/tools/indel_env.explicit.txt /opt/build/indel_env.explicit.txt
+    containers/tools/indel_cluster_env.explicit.txt /opt/build/indel_cluster_env.explicit.txt
+    containers/tools/install_perl_mods.sh /opt/build/install_perl_mods.sh
+    pyproject.toml /opt/s2g2p/pyproject.toml
+    README.md /opt/s2g2p/README.md
+    LICENSE /opt/s2g2p/LICENSE
+    src /opt/s2g2p/src
+
+%post
+    set -eu
+    dnf -y install gcc gcc-c++ make zlib-devel bzip2 bzip2-devel xz wget curl tar git which \
+        findutils procps-ng diffutils libnsl perl-core
+    dnf clean all
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    for e in perl5_22_env indel_env indel_cluster_env; do
+        micromamba create -y -p /opt/envs/$e --file /opt/build/$e.explicit.txt
+    done
+    micromamba create -y -p /opt/envs/s2g2p -c conda-forge python=3.12 numpy pandas scikit-learn pyyaml joblib pip
+    /opt/envs/s2g2p/bin/pip install --no-deps /opt/s2g2p
+
+    # Roary fork and its bundled dependencies
+    git clone https://github.com/hzi-bifo/Roary.git /opt/roary
+    cd /opt/roary && git checkout 7402d1bab868d73b9c1e7cf30e8af8c5b2578313
+    # Its last step (MAFFT 7.271 from mafft.cbrc.jp) did not build in the reproduction either;
+    # Roary's --mafft then used perl5_22_env's mafft 7.310. The tools that did build are checked
+    # explicitly below, so a failure there cannot pass silently.
+    PATH=/opt/envs/perl5_22_env/bin:$PATH bash ./install_dependencies.sh || echo "install_dependencies.sh exited non-zero"
+    rm -rf /opt/roary/build/*.tar.* /opt/roary/build/*.tgz
+    for t in ncbi-blast-2.4.0+/bin/blastp ncbi-blast-2.4.0+/bin/makeblastdb cd-hit-v4.6.6-2016-0711/cd-hit \
+             mcl-14-137/src/shmcl/mcl bedtools2/bin/bedtools parallel-20160722/src/parallel; do
+        test -x /opt/roary/build/$t || { echo "FATAL: Roary dependency $t did not build"; exit 1; }
+    done
+
+    # Roary's Perl modules, pinned, into perl5_22_env (cpanm prefers curl/wget over LWP)
+    cd /tmp && PATH=/opt/envs/perl5_22_env/bin:$PATH bash /opt/build/install_perl_mods.sh || true
+    for m in Bio::Perl Moose Log::Log4perl Array::Utils File::Grep File::Which File::Slurper Text::CSV \
+             XML::Parser Graph Graph::Writer::Dot File::Find::Rule Exception::Class; do
+        /opt/envs/perl5_22_env/bin/perl -M$m -e1 || { echo "FATAL: Perl module $m missing"; exit 1; }
+    done
+
+    # Entry points: each tool runs with the environment its Seq2Geno rule gave it.
+    R=/opt/roary
+    cat > /usr/local/bin/roary <<EOS
+#!/bin/bash
+export PATH=$R/build/fasttree:$R/build/mcl-14-137/src/alien/oxygen/src:$R/build/mcl-14-137/src/shmcl:$R/build/ncbi-blast-2.4.0+/bin:$R/build/prank-msa-master/src:$R/build/cd-hit-v4.6.6-2016-0711:$R/build/bedtools2/bin:$R/build/parallel-20160722/src:/opt/envs/perl5_22_env/bin:\$PATH
+export PERL5LIB=$R/lib:$R/build/bedtools2/lib\${PERL5LIB:+:\$PERL5LIB}
+exec $R/bin/roary "\$@"
+EOS
+    for b in blastp makeblastdb; do
+        printf '#!/bin/bash\nexec %s/build/ncbi-blast-2.4.0+/bin/%s "$@"\n' "$R" "$b" > /usr/local/bin/$b
+    done
+    printf '#!/bin/bash\nexport PATH=/opt/envs/indel_cluster_env/bin:$PATH\nexec mafft "$@"\n' > /usr/local/bin/mafft
+    printf '#!/bin/bash\nexport PATH=/opt/envs/indel_env/bin:$PATH\nexec msa2vcf "$@"\n' > /usr/local/bin/msa2vcf
+    chmod +x /usr/local/bin/roary /usr/local/bin/blastp /usr/local/bin/makeblastdb /usr/local/bin/mafft /usr/local/bin/msa2vcf
+
+%environment
+    export PATH=/usr/local/bin:/opt/envs/s2g2p/bin:$PATH
+    export LC_ALL=C
+
+%test
+    blastp -version | grep -q "2.4.0"
+    makeblastdb -version | grep -q "2.4.0"
+    mafft --version 2>&1 | grep -q "7.310"
+    printf ">a_1\nACGT\n>b_1\nACGA\n" | msa2vcf > /dev/null
+    roary -w | grep -q "3.8"
+    s2g2p --version
+
+%labels
+    org.opencontainers.image.title seq2geno2pheno-tools
+    org.opencontainers.image.source https://github.com/hzi-bifo/seq2geno2pheno
