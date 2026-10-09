@@ -111,7 +111,10 @@ def write_folds(folds: Sequence[Sequence[str]], path: str | os.PathLike) -> None
 
 def read_matrix(path: str | os.PathLike, dtype=None) -> pd.DataFrame:
     """A samples x features table. Values are kept as read unless ``dtype`` is given."""
-    df = pd.read_csv(path, sep="\t", index_col=0, dtype=str if dtype is None else None,
+    with open(path) as fh:
+        first = fh.readline().rstrip("\n").split("\t")[0]
+    # The id column is always text: read as a number, '1352.11330' would become '1352.1133'.
+    df = pd.read_csv(path, sep="\t", index_col=0, dtype=str if dtype is None else {first: str},
                      keep_default_na=False, na_values=[""])
     df.index = df.index.astype(str)
     df.index.name = "sample"
