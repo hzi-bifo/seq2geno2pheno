@@ -20,4 +20,9 @@ if [[ "${STUB:-1}" == 1 ]]; then
     nextflow -q run . -profile test -stub-run --preset "$preset" --outdir "results-test/$preset" -work-dir "work-test"
     echo "stub run $preset: OK"
   done
+  nextflow -q run . -profile test -stub-run --mode train --outdir results-test/train -work-dir work-test
+  echo "stub run train: OK"
+  nextflow -q run . -profile test -stub-run --mode predict --model_dir results-test/train/model \
+      --outdir results-test/predict -work-dir work-test
+  echo "stub run predict: OK"
 fi
