@@ -21,6 +21,11 @@ From: almalinux:8
     micromamba create -y -p /opt/envs/sys -c conda-forge procps-ng
     ln -s /opt/envs/sys/bin/ps /usr/local/bin/ps
     MAMBA_ROOT_PREFIX=/opt/conda micromamba create -y -p /opt/envs/prokka --file /opt/build/prokka_env.explicit.txt
+    # Java without its memory-mapped /tmp/hsperfdata file: on a node whose /tmp fills, the JVM
+    # dies at start with SIGBUS (seen on bioinf039), and Prokka reads that as minced failing
+    # its version check. -XX:-UsePerfData only disables JVM performance counters.
+    sed -i 's|^exec $java -jar|exec $java -XX:-UsePerfData -jar|' /opt/envs/prokka/bin/minced
+    grep -q -- '-XX:-UsePerfData' /opt/envs/prokka/bin/minced
     PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
 
 %environment

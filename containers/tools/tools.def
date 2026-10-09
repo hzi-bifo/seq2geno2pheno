@@ -87,6 +87,10 @@ File::Find::Rule 0.34
 Exception::Class 1.40
 MODS
 
+    # msa2vcf runs once per gene family: Java without its /tmp/hsperfdata mmap (see prokka.def)
+    sed -i 's|^java -Djvarkit|java -XX:-UsePerfData -Djvarkit|' /opt/envs/indel_env/bin/msa2vcf
+    grep -q -- '-XX:-UsePerfData' /opt/envs/indel_env/bin/msa2vcf
+
     # Entry points: each tool runs with the environment its Seq2Geno rule gave it.
     R=/opt/roary
     cat > /usr/local/bin/roary <<EOS
