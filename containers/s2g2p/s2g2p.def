@@ -10,7 +10,7 @@ From: mambaorg/micromamba:1.5.10
     src /opt/s2g2p/src
 
 %post
-    micromamba install -y -n base -c conda-forge python=3.12 numpy pandas scikit-learn pyyaml joblib pip
+    micromamba install -y -n base -c conda-forge python=3.12 numpy pandas scikit-learn pyyaml joblib pip procps-ng
     /opt/conda/bin/pip install --no-deps /opt/s2g2p
     micromamba clean -a -y
 
@@ -18,4 +18,5 @@ From: mambaorg/micromamba:1.5.10
     export PATH=/opt/conda/bin:$PATH
 
 %test
+    ps -p $$ > /dev/null
     s2g2p --version

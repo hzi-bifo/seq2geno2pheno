@@ -15,6 +15,11 @@ From: almalinux:8
     # libgomp: the env relied on the host OS for it (its BLAST links libgomp.so.1)
     dnf -y install bzip2 which findutils libgomp && dnf clean all
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    # ps (Nextflow's task metrics, GNU parallel): procps-ng from conda-forge -- the OS package
+    # cannot be unpacked in a root-mapped build (/usr/bin/free fails).
+    micromamba create -y -p /opt/envs/sys -c conda-forge procps-ng
+    ln -s /opt/envs/sys/bin/ps /usr/local/bin/ps
     MAMBA_ROOT_PREFIX=/opt/conda micromamba create -y -p /opt/envs/prokka --file /opt/build/prokka_env.explicit.txt
     PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
 
@@ -23,4 +28,5 @@ From: almalinux:8
     export LC_ALL=C
 
 %test
+    ps -p $$ > /dev/null
     prokka --version 2>&1 | grep -q "1.14.6"

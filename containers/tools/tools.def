@@ -34,6 +34,10 @@ From: almalinux:8
     dnf clean all
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
     export MAMBA_ROOT_PREFIX=/opt/conda
+    # ps (Nextflow's task metrics, GNU parallel): procps-ng from conda-forge -- the OS package
+    # cannot be unpacked in a root-mapped build (/usr/bin/free fails).
+    micromamba create -y -p /opt/envs/sys -c conda-forge procps-ng
+    ln -s /opt/envs/sys/bin/ps /usr/local/bin/ps
     for e in perl5_22_env indel_env indel_cluster_env; do
         micromamba create -y -p /opt/envs/$e --file /opt/build/$e.explicit.txt
     done
@@ -103,6 +107,7 @@ EOS
     export LC_ALL=C
 
 %test
+    ps -p $$ > /dev/null
     blastp -version | grep -q "2.4.0"
     makeblastdb -version | grep -q "2.4.0"
     mafft --version 2>&1 | grep -q "7.310"
