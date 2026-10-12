@@ -1,0 +1,8 @@
+# The s2g2p package's own runtime (everything but the hu2024 preset's models).
+python==3.12
+numpy
+pandas
+scikit-learn
+pyyaml
+joblib
+pip

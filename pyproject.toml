@@ -7,13 +7,18 @@ name = "seq2geno2pheno"
 dynamic = ["version"]
 description = "Genotype-phenotype prediction for bacterial genomes: Seq2Geno features, Geno2Pheno models, with no information from the test set."
 readme = "README.md"
-license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
+# Academic Software License v1.0 (non-commercial academic use; not an OSI licence, no SPDX id)
+license = "LicenseRef-ASL-1.0"
+license-files = ["LICENSE", "NOTICE", "licenses/*"]
 requires-python = ">=3.10"
-# TODO(authors): confirm the author list and order with T.-H. Kuo, E. Asgari and A. C. McHardy
-# before any release. The 2021 v2 citation lists Asgari, Kuo, Bremges, Robertson, Weimann, McHardy.
+# The v2 (2021) author list, unchanged; CITATION.cff carries the same list.
 authors = [
-    { name = "Hadi Foroughmand Araabi", email = "mohammad-hadi.foroughmand-araabi@helmholtz-hzi.de" },
+    { name = "Ehsaneddin Asgari" },
+    { name = "Tzu-Hao Kuo" },
+    { name = "Andreas Bremges" },
+    { name = "Gary Robertson" },
+    { name = "Aaron Weimann" },
+    { name = "Alice C. McHardy" },
 ]
 keywords = ["bacterial genomics", "antimicrobial resistance", "genotype-phenotype",
             "pangenome", "machine learning", "nested cross-validation", "data leakage"]
@@ -24,8 +29,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 # The modelling half (Geno2Pheno) is pure Python. The feature half (Seq2Geno) calls Prokka,
-# Roary, mafft, msa2vcf and BLAST, which are not pip-installable: the Nextflow workflow runs each
-# in its own pinned container, and `s2g2p` only parses their outputs.
+# Roary, mafft, msa2vcf and BLAST, which are not pip-installable: envs/install.sh installs them
+# as pinned conda environments, the Nextflow workflow runs them, and `s2g2p` only parses their
+# outputs.
 dependencies = [
     "numpy>=1.26",
     "pandas>=2.1",

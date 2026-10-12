@@ -8,7 +8,7 @@
 # Build the Apptainer images into containers/images/ on an HZI compute node (fakeroot works
 # there, not on the login node; without a subuid mapping Apptainer uses a root-mapped
 # namespace, and dnf only works there with --ignore-fakeroot-command). From the repository root:
-#   sbatch -p cpu -A b_algbio -o log/%x_%j.out containers/build-hzi.sbatch [s2g2p|prokka|tools ...]
+#   sbatch -p cpu -A bifo -o log/%x_%j.out containers/build-hzi.sbatch [s2g2p|prokka|tools ...]
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 mkdir -p containers/images

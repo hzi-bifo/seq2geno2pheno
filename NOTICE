@@ -1,0 +1,33 @@
+Seq2Geno2Pheno is © 2021-2026, Ehsaneddin Asgari, Tzu-Hao Kuo, Andreas Bremges, Gary Robertson,
+Aaron Weimann, Alice C. McHardy and contributors; Helmholtz Centre for Infection Research (HZI),
+Braunschweig, Germany.
+
+Seq2Geno2Pheno is published and distributed under the Academic Software License v1.0 (ASL),
+the text of which is in LICENSE (from https://github.com/ACEsuit/ACE.jl/blob/main/ASL.md).
+
+Seq2Geno2Pheno is distributed in the hope that it will be useful for non-commercial academic
+research, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the ASL for more details.
+
+You may contact the original licensor at: McHardy group (Computational Biology of Infection
+Research), Helmholtz Centre for Infection Research, Inhoffenstraße 7, 38124 Braunschweig,
+Germany. For commercial use, contact the licensor about a commercial licence.
+
+Versions up to and including v2.00001 (2021) were released under GPL-3.0-or-later and remain
+available under it (tag v2.00001, branch legacy-v2).
+
+Third-party code
+----------------
+- Python ports of Seq2Geno (https://github.com/hzi-bifo/seq2geno) scripts, © 2021 Tzu-Hao Kuo
+  and Aaron Weimann, originally GPL-3.0-or-later: featCompress.py, vcf2indel.py,
+  generate_indel_features.py, gene_clusters2multi_fasta.py and filter.awk
+  (in src/s2g2p/features/).
+- A port of the model-selection procedure of the AMR benchmarking pipeline of Hu et al. 2024
+  (https://github.com/hzi-bifo/AMR_benchmarking: main_s2p.py, hyper_range.py,
+  result_analysis.py), © 2023 its authors, MIT License (full text: licenses/AMR_benchmarking-MIT.txt).
+
+Not included
+------------
+envs/install.sh downloads, but this repository does not contain, Seq2Geno's fork of Roary
+(https://github.com/hzi-bifo/Roary, GPL-3.0), NCBI BLAST+ 2.4.0 (public domain), GNU parallel
+(GPL-3.0) and the conda packages listed in envs/; each keeps its own licence.

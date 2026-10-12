@@ -7,8 +7,8 @@ Bootstrap: docker
 From: almalinux:8
 
 %files
-    containers/hu2024ml/amr_env.explicit.txt /opt/build/amr_env.explicit.txt
-    containers/hu2024ml/amr_env.pip.txt /opt/build/amr_env.pip.txt
+    envs/hu2024ml.lock.txt /opt/build/amr_env.explicit.txt
+    envs/hu2024ml.pip.txt /opt/build/amr_env.pip.txt
     src /opt/s2g2p/src
 
 %post

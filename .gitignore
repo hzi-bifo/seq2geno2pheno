@@ -11,3 +11,7 @@ __pycache__/
 *.egg-info/
 containers/images/
 dev-runs/
+envs/installed/
+tutorial/genomes/
+tutorial-results/
+tutorial-work/

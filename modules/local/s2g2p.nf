@@ -1,10 +1,30 @@
 /*
- * Seq2Geno2Pheno v3 processes. Each external tool runs in its own pinned container
- * (conf/containers.config); every Python step is the `s2g2p` CLI of this repository.
+ * Seq2Geno2Pheno v3 processes. Each external tool runs from its own pinned environment: the
+ * wrappers envs/install.sh writes (-profile conda), or an image (params.containers, container
+ * profiles). Every Python step is the `s2g2p` CLI of this repository.
  *
  * Annotation directories are staged under their sample names, so `--annotations .` finds
  * <sample>/<sample>.{gff,faa,ffn} in the task directory.
  */
+
+process INSTALL {
+    // The environments of -profile conda. Runs where the executor puts it: that node needs
+    // internet access, and --env_dir must be on storage the compute nodes share.
+    label 'process_medium'
+
+    output:
+    stdout
+
+    script:
+    """
+    bash ${projectDir}/envs/install.sh --prefix ${params.env_dir}
+    """
+
+    stub:
+    """
+    echo install stub
+    """
+}
 
 process PROKKA {
     // Seq2Geno's create_gff rule, flag for flag (Prokka 1.14.6 in the published env).

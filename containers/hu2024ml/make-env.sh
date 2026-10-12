@@ -4,12 +4,14 @@
 # numpy 1.20.1, pandas 1.2.2, scipy 1.6.0. Plus PyYAML and s2g2p (no deps), which is all
 # s2g2p needs to run `evaluate --preset hu2024` under the published library versions.
 #   bash containers/hu2024ml/make-env.sh <prefix>
+# (envs/install.sh does the same for -profile conda)
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
+locks=$(cd "$here/../../envs" && pwd)
 prefix=${1:?prefix}
-micromamba create -y -p "$prefix" --file "$here/amr_env.explicit.txt" 2>/dev/null \
-  || conda create -y -p "$prefix" --file "$here/amr_env.explicit.txt"
-"$prefix/bin/pip" install --no-deps -r "$here/amr_env.pip.txt"
+micromamba create -y -p "$prefix" --file "$locks/hu2024ml.lock.txt" 2>/dev/null \
+  || conda create -y -p "$prefix" --file "$locks/hu2024ml.lock.txt"
+"$prefix/bin/pip" install --no-deps -r "$locks/hu2024ml.pip.txt"
 "$prefix/bin/pip" install --no-deps "pyyaml==6.0.1"
 # s2g2p by path, not by pip: its build backend (hatchling) needs Python >= 3.8.
 site=$("$prefix/bin/python" -c "import site; print(site.getsitepackages()[0])")

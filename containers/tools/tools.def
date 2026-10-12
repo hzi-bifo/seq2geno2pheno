@@ -15,9 +15,9 @@ Bootstrap: docker
 From: almalinux:8
 
 %files
-    containers/tools/perl5_22_env.explicit.txt /opt/build/perl5_22_env.explicit.txt
-    containers/tools/indel_env.explicit.txt /opt/build/indel_env.explicit.txt
-    containers/tools/indel_cluster_env.explicit.txt /opt/build/indel_cluster_env.explicit.txt
+    envs/roary-perl.lock.txt /opt/build/perl5_22_env.explicit.txt
+    envs/msa2vcf.lock.txt /opt/build/indel_env.explicit.txt
+    envs/mafft.lock.txt /opt/build/indel_cluster_env.explicit.txt
     pyproject.toml /opt/s2g2p/pyproject.toml
     README.md /opt/s2g2p/README.md
     LICENSE /opt/s2g2p/LICENSE

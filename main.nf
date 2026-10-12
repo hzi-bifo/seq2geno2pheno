@@ -14,10 +14,11 @@
  *
  * --mode train fits a final model per phenotype on all labelled genomes (fold-scope presets
  * only); --mode predict places new genomes into that model's pangenome and predicts them.
+ * --mode install creates the tool environments for -profile conda (envs/install.sh).
  */
 nextflow.enable.dsl = 2
 
-include { PROKKA; ROARY; KMERS; GPA; INDELS; COMPRESS; SPLIT; PLACE; EVALUATE; TRAIN; PREDICT } from './modules/local/s2g2p'
+include { INSTALL; PROKKA; ROARY; KMERS; GPA; INDELS; COMPRESS; SPLIT; PLACE; EVALUATE; TRAIN; PREDICT } from './modules/local/s2g2p'
 
 def loadPreset(name) {
     def f = file("${projectDir}/src/s2g2p/presets/${name}.yml")
@@ -31,6 +32,15 @@ def loadPreset(name) {
 }
 
 workflow {
+    if (params.mode == 'install') {
+        INSTALL().view()
+        return
+    }
+    if (workflow.profile.tokenize(',').contains('conda') && !workflow.stubRun
+            && !file("${params.env_dir}/.installed").exists()) {
+        error "-profile conda: no environments under --env_dir ${params.env_dir}; install them first " +
+              "with `bash ${projectDir}/envs/install.sh --prefix ${params.env_dir}` or --mode install"
+    }
     if (!params.input) {
         error "--input <sample sheet> is required"
     }
@@ -91,6 +101,6 @@ workflow {
                 file(params.model_dir, checkIfExists: true))
     }
     else {
-        error "--mode must be evaluate, train or predict"
+        error "--mode must be evaluate, train, predict or install"
     }
 }

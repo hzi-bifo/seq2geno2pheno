@@ -1,30 +1,38 @@
-# Images
+# Images (optional)
+
+The supported way to install is without containers: `envs/install.sh` and `-profile conda`
+(README, docs/tutorial.md). The images here are built from the same lock files in `envs/`, for
+sites that prefer containers. Images built before the lock files moved to `envs/` used the
+reproduction's Prokka list (`docs/legacy/prokka_env.reproduction.lock.txt`).
 
 | Image | Definition | Used by | Contents |
 |---|---|---|---|
 | `s2g2p.sif` | `s2g2p/s2g2p.def` (`s2g2p/Dockerfile` for Docker) | KMERS, GPA, COMPRESS, SPLIT, EVALUATE | s2g2p and its Python dependencies |
-| `prokka-1.14.6.sif` | `prokka/prokka.def` | PROKKA | the exact package list of Seq2Geno's `prokka_env` as the reproduction ran it |
+| `prokka-1.14.6.sif` | `prokka/prokka.def` | PROKKA | `envs/prokka.lock.txt`: the tool versions of Seq2Geno's `prokka_env` as the reproduction ran it |
 | `s2g2p-tools.sif` | `tools/tools.def` | ROARY, INDELS, PLACE, TRAIN, PREDICT | Seq2Geno's Roary fork (hzi-bifo/Roary @ 7402d1b) with its own BLAST 2.4.0; mafft 7.310; msa2vcf 1.0; s2g2p |
+| `s2g2p-hu2024ml.sif` | `hu2024ml/hu2024ml.def` | EVALUATE with `hu2024` | the published model environment (scikit-learn 0.24.1) and s2g2p |
 
 ## Why exact package lists
 
 Every conda environment in the legacy images is created from `conda list --explicit --md5`
-of the environment Seq2Geno built and ran in the Hu et al. 2024 reproduction (`*.explicit.txt`
-here). That reproduction's tables are what `dev/validate_reproduction.py` checks the ports
+of the environment Seq2Geno built and ran in the Hu et al. 2024 reproduction
+(`envs/*.lock.txt`). That reproduction's tables are what `dev/validate_reproduction.py` checks the ports
 against, so these are the versions known to produce them. Re-solving the 2016-era pins instead
 gives whatever the channels hold today.
 
 Prokka is pinned with its whole stack because gene names become Roary family names, and family
 names decide which indel columns exist under the legacy rules (`docs/design.md`).
 
-60 packages of `prokka_env` come from the `anaconda` channel, as in the published
-environment. Check Anaconda's terms of service before redistributing that image.
+The exception is Prokka: 60 packages of the reproduction's `prokka_env` (system libraries,
+Perl, Java) came from Anaconda's own channel. `envs/prokka.lock.txt` keeps every Bioconda tool
+at the same version and takes the rest from conda-forge (`envs/specs/prokka.txt`,
+`dev/lock-envs.sbatch`).
 
 ## Building on the HZI clusters
 
 ```bash
-sbatch -p cpu -A b_algbio -o log/%x_%j.out containers/build-hzi.sbatch            # all three
-sbatch -p cpu -A b_algbio -o log/%x_%j.out containers/build-hzi.sbatch tools      # one
+sbatch -p cpu -A bifo -o log/%x_%j.out containers/build-hzi.sbatch            # all four
+sbatch -p cpu -A bifo -o log/%x_%j.out containers/build-hzi.sbatch tools      # one
 ```
 
 - Builds run on compute nodes. There is no subuid mapping, so Apptainer uses a root-mapped

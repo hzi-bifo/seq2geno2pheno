@@ -1,14 +1,13 @@
-# Prokka 1.14.6 from the exact package list of Seq2Geno's prokka_env as the reproduction ran it
-# (prokka 1.14.6 pl5321hdfd78af_5, prodigal 2.6.3, BLAST 2.13.0, hmmer 3.3.2, ...). Gene names
-# feed Roary's family names, so the annotation stack is pinned, not just Prokka.
-# Note: 60 of its packages come from the `anaconda` channel, as in the published environment;
-# check Anaconda's terms of service before redistributing this image.
+# Prokka 1.14.6 from envs/prokka.lock.txt: the tool versions of Seq2Geno's prokka_env as the
+# reproduction ran it (prokka 1.14.6, prodigal 2.6.3, BLAST 2.13.0, hmmer 3.3.2, ...), on
+# conda-forge + bioconda only. Gene names feed Roary's family names, so the annotation stack is
+# pinned, not just Prokka.
 #   apptainer build --fakeroot containers/images/prokka-1.14.6.sif containers/prokka/prokka.def
 Bootstrap: docker
 From: almalinux:8
 
 %files
-    containers/prokka/prokka_env.explicit.txt /opt/build/prokka_env.explicit.txt
+    envs/prokka.lock.txt /opt/build/prokka_env.explicit.txt
 
 %post
     set -eu
