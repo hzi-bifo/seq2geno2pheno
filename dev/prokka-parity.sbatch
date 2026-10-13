@@ -17,7 +17,9 @@ out=$run/compare/prokka-parity
 rm -rf "$out" && mkdir -p "$out"
 trace=$run/pipeline_info/trace.tsv
 printf 'sample\tfile\tidentical\n' > "$out/result.tsv"
-tail -n +2 "$sheet" | sort | head -n "$n" | while IFS=$'\t' read -r s fasta _; do
+# the first n samples (awk, not head: under pipefail, head's early exit fails the pipe)
+picked=$(tail -n +2 "$sheet" | sort | awk -v n="$n" 'NR <= n')
+while IFS=$'\t' read -r s fasta _; do
     h=$(awk -F'\t' -v s="PROKKA ($s)" 'NR==1{for(i=1;i<=NF;i++)c[$i]=i; next} $c["name"]==s{print $c["hash"]}' "$trace")
     ref=$(ls -d "$run"/work/"$h"*)/$s
     (cd "$out" && "$envs/bin/prokka" --locustag "$s" --prefix "$s" --force --cpus 8 \
@@ -26,6 +28,6 @@ tail -n +2 "$sheet" | sort | head -n "$n" | while IFS=$'\t' read -r s fasta _; d
         if cmp -s "$ref/$s.$ext" "$out/$s/$s.$ext"; then r=yes; else r=no; fi
         printf '%s\t%s\t%s\n' "$s" "$ext" "$r" >> "$out/result.tsv"
     done
-done
+done <<< "$picked"
 awk -F'\t' 'NR>1{n++; if($3=="yes") y++} END{print y" of "n" files identical"}' "$out/result.tsv"
 grep -P '\tno$' "$out/result.tsv" || true

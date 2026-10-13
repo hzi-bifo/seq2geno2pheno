@@ -25,6 +25,6 @@ if [ "$t" -lt 2 ]; then seed=(--env PERL_HASH_SEED=0 --env PERL_PERTURB_KEYS=0);
 cd "$run"
 apptainer exec --env TMPDIR=/tmp --env SHELL=/bin/bash "${seed[@]}" \
     "$SLURM_SUBMIT_DIR/containers/images/s2g2p-tools.sif" \
-    bash -c 'echo "PERL_HASH_SEED=${PERL_HASH_SEED:-random}"; roary -f roary -v gff/*.gff -p 8 -e --mafft -g 700000 -z' \
+    bash -c 'echo "PERL_HASH_SEED=${PERL_HASH_SEED:-random}"; roary -f roary -v gff/*.gff -p '"$SLURM_CPUS_PER_TASK"' -e --mafft -g 700000 -z' \
     > roary.log 2>&1
 md5sum roary/clustered_proteins roary/_clustered.clstr roary/_inflated_mcl_groups roary/_uninflated_mcl_groups
