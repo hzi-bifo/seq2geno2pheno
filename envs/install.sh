@@ -100,12 +100,20 @@ if create_env roary-perl; then
     # install_perl_mods.sh is not run: it pins newer versions, and in the reproduction every
     # one of its cpanm calls failed, so Roary ran with these. A module the environment does not
     # provide on Perl 5.22's path is installed with cpanm at the reproduction's version.
+    # cpanm installs into an explicit library inside the environment (roary-perl/cpan). Left to
+    # itself it decides whether site_perl is writable from the directory's owner -- wrong on
+    # storage that reports another owner -- and then falls back to ~/perl5, where a module it
+    # finds from some other project counts as "up to date". The caller's own Perl settings are
+    # cleared for the same reason: Roary must load exactly what is checked here.
     perl=$prefix/roary-perl/bin/perl
+    cpan_lib=$prefix/roary-perl/cpan
+    clean_perl=(env -u PERL5LIB -u PERLLIB -u PERL_LOCAL_LIB_ROOT -u PERL_MB_OPT -u PERL_MM_OPT
+                PERL5LIB="$cpan_lib/lib/perl5")
     while read -r m v; do
-        if ! "$perl" -M"$m" -e1 2> /dev/null; then
-            PATH=$prefix/roary-perl/bin:$PATH cpanm --notest "$m@$v"
+        if ! "${clean_perl[@]}" "$perl" -M"$m" -e1 2> /dev/null; then
+            "${clean_perl[@]}" PATH="$prefix/roary-perl/bin:$PATH" cpanm --notest -l "$cpan_lib" "$m@$v"
         fi
-        got=$("$perl" -M"$m" -e "print \$${m}::VERSION")
+        got=$("${clean_perl[@]}" "$perl" -M"$m" -e "print \$${m}::VERSION")
         [ "$got" = "$v" ] || die "Perl module $m is $got, the reproduction loaded $v"
     done <<'MODS'
 Bio::Perl 1.006924
@@ -193,7 +201,8 @@ exec $P/prokka/bin/prokka \"\$@\""
 # above, BLAST+ 2.4.0, GNU parallel, mafft 7.310 (-e --mafft) and Perl 5.22.
 ROARY_PATH=$P/roary/bin:$P/roary-tools:$P/blast-2.4.0/bin:$P/parallel/src:$P/mafft/bin:$P/roary-perl/bin
 wrap roary "export PATH=$ROARY_PATH:\$PATH
-export PERL5LIB=$P/roary/lib
+unset PERLLIB PERL_LOCAL_LIB_ROOT PERL_MB_OPT PERL_MM_OPT
+export PERL5LIB=$P/roary/lib:$P/roary-perl/cpan/lib/perl5
 exec $P/roary-perl/bin/perl $P/roary/bin/roary \"\$@\""
 wrap blastp "exec $P/blast-2.4.0/bin/blastp \"\$@\""
 wrap makeblastdb "exec $P/blast-2.4.0/bin/makeblastdb \"\$@\""

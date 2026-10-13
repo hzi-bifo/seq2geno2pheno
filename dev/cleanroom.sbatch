@@ -33,11 +33,11 @@ mkdir -p "$ROOT/report" && cd "$ROOT" || exit 1
 # which safe.directory honours), leaving ~/.gitconfig alone.
 export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$ROOT/seq2geno2pheno"
 log() { printf '\n== %s  %s\n' "$(date +%T)" "$*"; }
-printf 'run\texit\tseconds\toutdir\n' > report/runs.tsv
+printf 'run\texit\tseconds\toutdir\n' > "$ROOT/report/runs.tsv"
 step() {  # name outdir cmd...: run, time and record a step without stopping the check
     local name=$1 out=$2; shift 2; log "$name"; local t0=$SECONDS
     "$@"; local rc=$?
-    printf '%s\t%s\t%s\t%s\n' "$name" "$rc" "$((SECONDS - t0))" "$out" >> report/runs.tsv
+    printf '%s\t%s\t%s\t%s\n' "$name" "$rc" "$((SECONDS - t0))" "$out" >> "$ROOT/report/runs.tsv"
     echo "[$name] exit $rc after $((SECONDS - t0)) s"; return $rc
 }
 { echo "host $(hostname)  cluster ${SLURM_CLUSTER_NAME:-?}  job ${SLURM_JOB_ID:-local}  $(date -Is)"
