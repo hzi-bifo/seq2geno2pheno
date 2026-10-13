@@ -102,6 +102,11 @@ process ROARY {
     n=\$(ls gff | wc -l)
     [ "\$n" -ge 2 ] || { echo "need at least two genomes, got \$n" >&2; exit 1; }
     roary -f roary -v gff/*.gff -p ${task.cpus} ${roary_args}
+    # Roary exits 0 when a step it shells out to fails (e.g. a program missing from PATH), and
+    # just leaves no tables; stop here rather than one step later with a less useful error.
+    for f in gene_presence_absence.csv gene_presence_absence.Rtab clustered_proteins; do
+        [ -s roary/\$f ] || { echo "Roary wrote no roary/\$f; its log is above" >&2; exit 1; }
+    done
     """
 
     stub:

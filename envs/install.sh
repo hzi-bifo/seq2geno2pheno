@@ -175,7 +175,9 @@ $missing
 # Each tool runs with the environment its Seq2Geno rule gave it. Roary sees only the programs
 # it calls from roary-deps (that environment's own perl must not shadow Perl 5.22).
 mkdir -p "$prefix/roary-tools" "$prefix/bin" "$prefix/bin-hu2024ml"
-for t in cd-hit mcl bedtools FastTree prank; do
+# mcxdeblast is MCL's BLAST-to-graph step, which Roary calls before mcl; `roary -a` does not list
+# it, so its absence only shows when clustering starts (and Roary then exits 0 with no tables).
+for t in cd-hit mcl mcxdeblast bedtools FastTree prank; do
     [ -x "$prefix/roary-deps/bin/$t" ] || die "roary-deps lacks $t"
     ln -sfn "$prefix/roary-deps/bin/$t" "$prefix/roary-tools/$t"
 done
@@ -187,7 +189,10 @@ wrap() {  # name, body
 P=$prefix
 wrap prokka "export PATH=$P/prokka/bin:\$PATH
 exec $P/prokka/bin/prokka \"\$@\""
-wrap roary "export PATH=$P/roary/bin:$P/roary-tools:$P/blast-2.4.0/bin:$P/parallel/src:$P/roary-perl/bin:\$PATH
+# Everything Roary runs comes from this PATH, not from the caller's: its own scripts, the programs
+# above, BLAST+ 2.4.0, GNU parallel, mafft 7.310 (-e --mafft) and Perl 5.22.
+ROARY_PATH=$P/roary/bin:$P/roary-tools:$P/blast-2.4.0/bin:$P/parallel/src:$P/mafft/bin:$P/roary-perl/bin
+wrap roary "export PATH=$ROARY_PATH:\$PATH
 export PERL5LIB=$P/roary/lib
 exec $P/roary-perl/bin/perl $P/roary/bin/roary \"\$@\""
 wrap blastp "exec $P/blast-2.4.0/bin/blastp \"\$@\""
@@ -219,6 +224,12 @@ for want in "blastp version is 2.4.0" "makeblastdb version is 2.4.0" "mcl versio
     grep -q "$want" "$P/roary-dependencies.txt" || die "roary: expected '$want' (see $P/roary-dependencies.txt)"
 done
 PATH=$P/roary/bin:$PATH command -v extract_proteome_from_gff > /dev/null || die "Roary's helper scripts are missing"
+# Every external program Roary invokes (Bio/Roary/External/*.pm) must resolve from the wrapper's
+# own PATH, with nothing from the caller's environment to fall back on.
+for t in blastp makeblastdb cd-hit mcl mcxdeblast FastTree prank mafft bedtools parallel; do
+    env -i PATH="$ROARY_PATH:/usr/bin:/bin" bash -c "command -v $t" > /dev/null \
+        || die "roary: '$t' is not on the wrapper's PATH"
+done
 "$B/s2g2p" --version
 "$P/bin-hu2024ml/s2g2p" --version
 "$P/hu2024ml/bin/python" -c "import sklearn; assert sklearn.__version__ == '0.24.1', sklearn.__version__"
