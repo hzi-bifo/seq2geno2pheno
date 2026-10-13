@@ -57,7 +57,7 @@ cp envs/installed/manifest.tsv ../report/install_manifest.tsv
 
 # -- 2. genomes -------------------------------------------------------------------------------------
 step genomes - bash tutorial/fetch_genomes.sh || exit 1
-md5sum -c --quiet tutorial/genomes.md5 > ../report/genomes_md5.txt 2>&1 && echo "all identical" >> ../report/genomes_md5.txt
+(cd tutorial && md5sum -c genomes.md5) > ../report/genomes_md5.txt 2>&1   # paths in it are relative to tutorial/
 
 # -- 3. the settings ---------------------------------------------------------------------------------
 # folds supplied by the user (docs/tutorial.md: "--folds folds.json ... or a TSV of sample, fold"),

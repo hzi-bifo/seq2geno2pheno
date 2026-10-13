@@ -32,10 +32,18 @@ def loadPreset(name) {
 }
 
 workflow {
+    // Nextflow's strict syntax (the default from 26.x) allows no `return` in a workflow body, so
+    // install is the first branch of one if/else chain rather than an early exit.
     if (params.mode == 'install') {
         INSTALL().view()
-        return
     }
+    else {
+        run_pipeline()
+    }
+}
+
+workflow run_pipeline {
+    main:
     if (workflow.profile.tokenize(',').contains('conda') && !workflow.stubRun
             && !file("${params.env_dir}/.installed").exists()) {
         error "-profile conda: no environments under --env_dir ${params.env_dir}; install them first " +
@@ -48,56 +56,56 @@ workflow {
     def feats = preset.features
     log.info "Seq2Geno2Pheno v3 | preset ${preset.name} (${preset.status}) | mode ${params.mode} | fit_scope ${feats.fit_scope}"
 
-    sheet = file(params.input, checkIfExists: true)
-    folds = params.folds ? file(params.folds.replace('{phenotype}', '*')) : []
+    def sheet = file(params.input, checkIfExists: true)
+    def folds = params.folds ? file(params.folds.replace('{phenotype}', '*')) : []
 
-    samples = Channel.fromPath(sheet)
+    def samples = channel.fromPath(sheet)
         .splitCsv(header: true, sep: sheet.name.endsWith('.csv') ? ',' : '\t')
         // relative assembly paths resolve against the sheet's directory, as in s2g2p.io
         .map { row -> tuple(row.sample, file(row.assembly.startsWith('/') ? row.assembly : "${sheet.parent}/${row.assembly}", checkIfExists: true)) }
 
-    annotations = PROKKA(samples)                       // [sample, dir <sample>/]
-    annot_dirs = annotations.map { it[1] }.collect()
-    kmers = KMERS(samples.toList().map { l -> tuple(l.collect { it[0] }, l.collect { it[1] }) })
+    def annotations = PROKKA(samples)                   // [sample, dir <sample>/]
+    def annot_dirs = annotations.map { s -> s[1] }.collect()
+    def kmers = KMERS(samples.toList().map { l -> tuple(l.collect { s -> s[0] }, l.collect { s -> s[1] }) })
 
     if (params.mode == 'evaluate' && feats.fit_scope == 'cohort') {
-        all_ids = samples.map { it[0] }.collectFile(name: 'cohort.txt', newLine: true)
-        pg = ROARY(all_ids.map { tuple('cohort', it) }, annot_dirs, feats.roary_args)
-        gpa = GPA(pg)
-        ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
-        tables = COMPRESS(gpa.join(ind.tables))          // [label, gpa_NONRDNT.tsv, indel_NONRDNT.tsv]
-        EVALUATE(sheet, folds, kmers, tables.map { it[1..2] }.collect(), params.preset, 'cohort', preset.ml_env ?: 'current')
+        def all_ids = samples.map { s -> s[0] }.collectFile(name: 'cohort.txt', newLine: true)
+        def pg = ROARY(all_ids.map { f -> tuple('cohort', f) }, annot_dirs, feats.roary_args)
+        def gpa = GPA(pg)
+        def ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
+        def tables = COMPRESS(gpa.join(ind.tables))      // [label, gpa_NONRDNT.tsv, indel_NONRDNT.tsv]
+        EVALUATE(sheet, folds, kmers, tables.map { t -> t[1..2] }.collect(), params.preset, 'cohort', preset.ml_env ?: 'current')
     }
     else if (params.mode == 'evaluate' && feats.fit_scope == 'fold') {
-        splits = SPLIT(sheet, folds)
-        jobs = splits.lists.flatten()
-            .filter { it.name.endsWith('.train.txt') }
+        def splits = SPLIT(sheet, folds)
+        def jobs = splits.lists.flatten()
+            .filter { f -> f.name.endsWith('.train.txt') }
             .map { f ->
                 def ph = f.parent.name
                 def k = (f.name =~ /fold_(\d+)\.train\.txt/)[0][1]
                 tuple("${ph}__fold_${k}".toString(), f, file(f.toString().replace('.train.txt', '.test.txt')))
             }
-        pg = ROARY(jobs.map { tuple(it[0], it[1]) }, annot_dirs, feats.roary_args)
-        gpa = GPA(pg)
-        ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
-        placed = PLACE(gpa.join(ind.tables).join(ind.aln).join(pg).join(jobs.map { tuple(it[0], it[2]) }), annot_dirs)
-        EVALUATE(sheet, folds, kmers, placed.map { it[1] }.collect(), params.preset, 'fold', preset.ml_env ?: 'current')
+        def pg = ROARY(jobs.map { j -> tuple(j[0], j[1]) }, annot_dirs, feats.roary_args)
+        def gpa = GPA(pg)
+        def ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
+        def placed = PLACE(gpa.join(ind.tables).join(ind.aln).join(pg).join(jobs.map { j -> tuple(j[0], j[2]) }), annot_dirs)
+        EVALUATE(sheet, folds, kmers, placed.map { t -> t[1] }.collect(), params.preset, 'fold', preset.ml_env ?: 'current')
     }
     else if (params.mode == 'train') {
         if (!preset.predict) {
             error "preset ${preset.name} cannot make a model for unseen genomes (predict: false); use noleak"
         }
-        all_ids = samples.map { it[0] }.collectFile(name: 'cohort.txt', newLine: true)
-        pg = ROARY(all_ids.map { tuple('final', it) }, annot_dirs, feats.roary_args)
-        gpa = GPA(pg)
-        ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
+        def all_ids = samples.map { s -> s[0] }.collectFile(name: 'cohort.txt', newLine: true)
+        def pg = ROARY(all_ids.map { f -> tuple('final', f) }, annot_dirs, feats.roary_args)
+        def gpa = GPA(pg)
+        def ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
         TRAIN(sheet, folds, kmers, gpa.join(ind.tables).join(ind.aln).join(pg), params.preset)
     }
     else if (params.mode == 'predict') {
         if (!params.model_dir) {
             error "--mode predict needs --model_dir (the outdir of a --mode train run)"
         }
-        PREDICT(samples.map { it[0] }.collectFile(name: 'query.txt', newLine: true), annot_dirs, kmers,
+        PREDICT(samples.map { s -> s[0] }.collectFile(name: 'query.txt', newLine: true), annot_dirs, kmers,
                 file(params.model_dir, checkIfExists: true))
     }
     else {
