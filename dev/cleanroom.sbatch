@@ -28,6 +28,10 @@ SRC="${SRC:-$here}"; REF="${REF:-$(git -C "$here" rev-parse HEAD)}"
 PARTITION="${PARTITION:-cpu}"; SLURM_EXTRA="${SLURM_EXTRA:---nice=30000 --exclude=bioinf009}"
 [ -e "$ROOT" ] && { echo "ROOT $ROOT exists; the check needs an empty start" >&2; exit 1; }
 mkdir -p "$ROOT/report" && cd "$ROOT" || exit 1
+# metis mounts shared storage as `nobody`, so git refuses every repository on it as "dubious
+# ownership", a fresh clone included. Trust the clone for this run only (command-scope config,
+# which safe.directory honours), leaving ~/.gitconfig alone.
+export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$ROOT/seq2geno2pheno"
 log() { printf '\n== %s  %s\n' "$(date +%T)" "$*"; }
 printf 'run\texit\tseconds\toutdir\n' > report/runs.tsv
 step() {  # name outdir cmd...: run, time and record a step without stopping the check
