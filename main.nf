@@ -99,7 +99,7 @@ workflow run_pipeline {
         def pg = ROARY(all_ids.map { f -> tuple('final', f) }, annot_dirs, feats.roary_args)
         def gpa = GPA(pg)
         def ind = INDELS(gpa.join(pg), annot_dirs, feats.indel_min_isolates, feats.indel_legacy_rules)
-        TRAIN(sheet, folds, kmers, gpa.join(ind.tables).join(ind.aln).join(pg), params.preset)
+        TRAIN(sheet, folds, kmers, gpa.join(ind.tables).join(ind.aln).join(pg), annot_dirs, params.preset)
     }
     else if (params.mode == 'predict') {
         if (!params.model_dir) {

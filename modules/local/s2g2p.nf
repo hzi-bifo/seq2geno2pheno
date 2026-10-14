@@ -302,6 +302,7 @@ process TRAIN {
     path folds
     path kmers
     tuple val(label), path(gpa), path(indel), path(aln), path(roary)
+    path annotations    // <sample>/ Prokka dirs: the model keeps its training proteins for placement
     val preset
 
     output:
