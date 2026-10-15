@@ -21,7 +21,9 @@ for preset in hu2024 noleak; do
   out=results-test/conda-$preset
   nextflow -q run . -profile test,conda -stub-run --preset "$preset" --env_dir /nonexistent/envs \
       --outdir "$out" -work-dir "work-test"
-  run=$(awk -F'\t' 'NR>1 && $4 ~ /^EVALUATE/ {print $2}' "$out/pipeline_info/trace.tsv" | head -1)
+  # task names carry the workflow prefix (run_pipeline:EVALUATE)
+  run=$(awk -F'\t' 'NR>1 && $4 ~ /(^|:)EVALUATE$/ {print $2; exit}' "$out/pipeline_info/trace.tsv")
+  [[ -n $run ]] || { echo "conda profile: no EVALUATE task in $out/pipeline_info/trace.tsv"; exit 1; }
   script=$(ls -d work-test/"$run"*/.command.run)
   if [[ $preset == hu2024 ]]; then want=/nonexistent/envs/bin-hu2024ml:; else want="export PATH=/nonexistent/envs/bin:"; fi
   grep -q "$want" "$script" || { echo "conda profile: EVALUATE ($preset) lacks $want"; exit 1; }
