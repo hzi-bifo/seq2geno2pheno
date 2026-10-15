@@ -21,7 +21,8 @@ Third-party code
 - Python ports of Seq2Geno (https://github.com/hzi-bifo/seq2geno) scripts, © 2021 Tzu-Hao Kuo
   and Aaron Weimann, originally GPL-3.0-or-later: featCompress.py, vcf2indel.py,
   generate_indel_features.py, gene_clusters2multi_fasta.py and filter.awk
-  (in src/s2g2p/features/).
+  (in src/s2g2p/features/). Distributed here under the ASL with the agreement of their
+  copyright holders.
 - A port of the model-selection procedure of the AMR benchmarking pipeline of Hu et al. 2024
   (https://github.com/hzi-bifo/AMR_benchmarking: main_s2p.py, hyper_range.py,
   result_analysis.py), © 2023 its authors, MIT License (full text: licenses/AMR_benchmarking-MIT.txt).

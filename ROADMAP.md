@@ -78,19 +78,17 @@ Nothing is published. Status as of 2026-10-12.
 5. **The `g2p` grid.** Recover Geno2Pheno's server-side grids (ask E. Asgari) or drop the
    preset from v3.0.
 6. **Licence: Academic Software License v1.0** (ASL, as ACE.jl; decided 2026-10-12; v2 was
-   GPL-3.0-or-later). **Blockers:**
-   - The ported Seq2Geno code (`src/s2g2p/features/`) is © T.-H. Kuo and A. Weimann under
-     GPL-3.0-or-later, and the ASL itself says it cannot be combined with GPL code for
-     distribution. Kuo and Weimann (and HZI, if it holds the rights) must agree in writing to
-     its relicensing under the ASL; record that in `NOTICE`.
-   - Confirm the licensor and contact in `NOTICE` (for commercial licences, possibly HZI's
+   GPL-3.0-or-later).
+   - The ported Seq2Geno code (`src/s2g2p/features/`, © T.-H. Kuo and A. Weimann, GPL-3.0):
+     its authors agreed to its relicensing under the ASL (recorded in `NOTICE`, 2026-10-15).
+   - **To do:** confirm the licensor and contact in `NOTICE` (for commercial licences, possibly HZI's
      technology transfer rather than the group).
    - ASL is not an OSI licence: check Bioconda's acceptance before planning a recipe.
 7. **Authors:** the v2 list, unchanged (`pyproject.toml`, `CITATION.cff`). Zenodo DOI at release.
 8. **Versioning:** `docs/RELEASING.md`; one version in four files, checked by
    `tests/test_version.py`.
-9. **CI:** `.github/workflows/ci.yml` (pytest on Python 3.10-3.13, Nextflow stub runs) is
-   written but has never run (nothing is pushed).
+9. **CI:** `.github/workflows/ci.yml` (pytest on Python 3.10-3.13, Nextflow stub runs); first
+   runs on the `v3` pull request.
 
 ## After 3.0
 
