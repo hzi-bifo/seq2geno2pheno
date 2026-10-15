@@ -1,0 +1,28 @@
+# noleak without Roary's `-e --mafft`. Those two flags build per-cluster alignments and a core
+# alignment after Roary has written gene_presence_absence.csv and clustered_proteins
+# (Bio/Roary/PostAnalysis.pm), so no feature reads them, and they are about two thirds of
+# Roary's runtime. Expected to match noleak within Roary's run-to-run noise (~1% of families);
+# that has not been measured at scale yet, hence `experimental`.
+name: fast
+status: experimental
+summary: >-
+  noleak with Roary's core-gene alignment switched off (-e --mafft), which no feature uses.
+features:
+  annotator: prokka
+  pangenome: roary
+  roary_args: "-g 700000 -z"
+  fit_scope: fold
+  compress: in_cv
+  kmer_k: 6
+  indel_min_isolates: 2
+  indel_legacy_rules: true
+ml:
+  blocks: [kmer, gpa, indel]
+  transforms: {kmer: standard, gpa: dedup, indel: dedup}
+  feature_sets: concat
+  classifiers: [svm, lr, rf, lsvm]
+  grid: hu2024
+  inner_cv: other_folds
+  tie_break: first
+  scoring: f1_macro
+predict: true

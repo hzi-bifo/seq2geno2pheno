@@ -1,0 +1,29 @@
+# The recommended preset: the hu2024 method with no information from held-out genomes.
+# Pangenome, family alignments and indel calls are built per outer fold from its training
+# genomes; held-out genomes are placed into them one at a time (s2g2p.place); k-mer scaling and
+# redundancy compression are pipeline steps refitted on every training split. Everything else --
+# tools, flags, grids, classifier choice, scoring -- is hu2024's.
+name: noleak
+status: recommended
+summary: >-
+  hu2024's tools, grids and selection, with every feature fitted on training genomes only and
+  held-out genomes placed into the training pangenome. Supports train/predict.
+features:
+  annotator: prokka
+  pangenome: roary
+  roary_args: "-e --mafft -g 700000 -z"
+  fit_scope: fold            # one pangenome per outer fold, training genomes only
+  compress: in_cv
+  kmer_k: 6
+  indel_min_isolates: 2
+  indel_legacy_rules: true
+ml:
+  blocks: [kmer, gpa, indel]
+  transforms: {kmer: standard, gpa: dedup, indel: dedup}
+  feature_sets: concat
+  classifiers: [svm, lr, rf, lsvm]
+  grid: hu2024
+  inner_cv: other_folds
+  tie_break: first
+  scoring: f1_macro
+predict: true

@@ -1,0 +1,34 @@
+# Seq2Geno2Pheno as Hu et al. 2024 ran it (Briefings in Bioinformatics 25(3):bbae206):
+# Seq2Geno's denovo branch on assemblies, then AMR_software/seq2geno/main_s2p.py.
+# Every unsupervised step is fitted on the whole cohort, test genomes included -- that is the
+# published method, kept so its numbers can be reproduced. Use `noleak` for anything else.
+name: hu2024
+status: reproduction
+summary: >-
+  Canonical 6-mers + Roary gene presence/absence + indels, redundancy-compressed and
+  concatenated; SVM, LR, RF and linear SVM with the published grids; per outer fold, the
+  classifier with the best inner-CV macro-F1. Pangenome, indels, compression and k-mer scaling
+  are fitted on all genomes, test genomes included.
+features:
+  annotator: prokka          # Prokka 1.14.6 --metagenome --compliant (Seq2Geno create_gff)
+  pangenome: roary           # Roary 3.8.2, Seq2Geno's bundled build
+  roary_args: "-e --mafft -g 700000 -z"
+  fit_scope: cohort          # one pangenome over every genome in the sample sheet
+  compress: cohort           # featCompress once over the cohort
+  kmer_k: 6
+  indel_min_isolates: 2
+  indel_legacy_rules: true
+ml:
+  blocks: [kmer, gpa, indel]
+  transforms: {kmer: standard_global, gpa: none, indel: none}
+  feature_sets: concat
+  classifiers: [svm, lr, rf, lsvm]
+  grid: hu2024
+  inner_cv: other_folds      # the 9 other outer folds, one held out at a time
+  tie_break: first           # result_analysis.py: MEAN.index() makes its lowest-std rule a no-op
+  scoring: f1_macro
+predict: false               # cohort-fitted features cannot be built for an unseen genome
+# The models run in the published model environment (scikit-learn 0.24.1; containers/hu2024ml),
+# where s2g2p matches the published per-classifier scores exactly. Other presets use the
+# current scikit-learn.
+ml_env: hu2024

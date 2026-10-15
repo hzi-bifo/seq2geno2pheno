@@ -1,0 +1,37 @@
+# The model environment of the published pipeline, for `--preset hu2024`'s EVALUATE step:
+# AMR_benchmarking's amr_env as the Hu et al. 2024 reproduction built it -- conda python 3.7.12
+# plus pip scikit-learn 0.24.1, numpy 1.20.1, pandas 1.2.2, scipy 1.6.0. In it, s2g2p's nested
+# CV matches the published per-classifier scores 120/120 (docs/validation/README.md).
+#   apptainer build --fakeroot --ignore-fakeroot-command containers/images/s2g2p-hu2024ml.sif containers/hu2024ml/hu2024ml.def
+Bootstrap: docker
+From: almalinux:8
+
+%files
+    envs/hu2024ml.lock.txt /opt/build/amr_env.explicit.txt
+    envs/hu2024ml.pip.txt /opt/build/amr_env.pip.txt
+    src /opt/s2g2p/src
+
+%post
+    set -eu
+    export TAR_OPTIONS=--no-same-owner MAMBA_ROOT_PREFIX=/opt/conda
+    dnf -y install bzip2 which findutils && dnf clean all
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
+    micromamba create -y -p /opt/envs/sys -c conda-forge procps-ng
+    ln -s /opt/envs/sys/bin/ps /usr/local/bin/ps
+    micromamba create -y -p /opt/envs/ml --file /opt/build/amr_env.explicit.txt
+    /opt/envs/ml/bin/pip install --no-deps -r /opt/build/amr_env.pip.txt
+    /opt/envs/ml/bin/pip install --no-deps pyyaml==6.0.1
+    # s2g2p by path: its build backend needs Python >= 3.8
+    echo /opt/s2g2p/src > $(/opt/envs/ml/bin/python -c "import site; print(site.getsitepackages()[0])")/s2g2p.pth
+    printf '#!/bin/bash\nexec /opt/envs/ml/bin/python -m s2g2p.cli "$@"\n' > /usr/local/bin/s2g2p
+    chmod +x /usr/local/bin/s2g2p
+
+%environment
+    export SHELL=/bin/bash
+    export PATH=/usr/local/bin:$PATH
+    export LC_ALL=C
+
+%test
+    ps -p $$ > /dev/null
+    /opt/envs/ml/bin/python -c "import sklearn; assert sklearn.__version__ == '0.24.1'"
+    s2g2p --version

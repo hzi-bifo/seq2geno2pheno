@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Seq2Geno2Pheno: A Computational Workflow for Phenotype Predictive-Modeling and Biomarker Detection from Microbial Sequence Data"
+type: software
+version: 3.0.0.dev0
+license-url: "https://github.com/hzi-bifo/seq2geno2pheno/blob/master/LICENSE"
+repository-code: "https://github.com/hzi-bifo/seq2geno2pheno"
+authors:
+  - given-names: Ehsaneddin
+    family-names: Asgari
+  - given-names: Tzu-Hao
+    family-names: Kuo
+  - given-names: Andreas
+    family-names: Bremges
+  - given-names: Gary
+    family-names: Robertson
+  - given-names: Aaron
+    family-names: Weimann
+  - given-names: Alice C.
+    family-names: McHardy
+keywords:
+  - bacterial genomics
+  - antimicrobial resistance
+  - genotype-phenotype prediction
+  - pangenome
+references:
+  - type: software
+    title: "Seq2Geno2Pheno"
+    version: v2.00001
+    date-released: 2021-07-07
+    authors:
+      - {given-names: Ehsaneddin, family-names: Asgari}
+      - {given-names: Tzu-Hao, family-names: Kuo}
+      - {given-names: Andreas, family-names: Bremges}
+      - {given-names: Gary, family-names: Robertson}
+      - {given-names: Aaron, family-names: Weimann}
+      - {given-names: Alice C., family-names: McHardy}
+  - type: article
+    title: "Assessing computational predictions of antimicrobial resistance phenotypes from microbial genomes"
+    journal: "Briefings in Bioinformatics"
+    volume: 25
+    issue: 3
+    start: bbae206
+    year: 2024
+    authors:
+      - {given-names: Kaixin, family-names: Hu}
+      - {name: "et al."}

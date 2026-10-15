@@ -1,0 +1,23 @@
+# seq2geno2pheno: s2g2p and its Python dependencies only.
+#   apptainer build --fakeroot containers/images/s2g2p.sif containers/s2g2p/s2g2p.def   (repo root)
+Bootstrap: docker
+From: mambaorg/micromamba:1.5.10
+
+%files
+    pyproject.toml /opt/s2g2p/pyproject.toml
+    README.md /opt/s2g2p/README.md
+    LICENSE /opt/s2g2p/LICENSE
+    src /opt/s2g2p/src
+
+%post
+    micromamba install -y -n base -c conda-forge python=3.12 numpy pandas scikit-learn pyyaml joblib pip procps-ng
+    /opt/conda/bin/pip install --no-deps /opt/s2g2p
+    micromamba clean -a -y
+
+%environment
+    export SHELL=/bin/bash
+    export PATH=/opt/conda/bin:$PATH
+
+%test
+    ps -p $$ > /dev/null
+    s2g2p --version

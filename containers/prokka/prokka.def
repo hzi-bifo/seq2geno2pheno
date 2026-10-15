@@ -1,0 +1,40 @@
+# Prokka 1.14.6 from envs/prokka.lock.txt: the tool versions of Seq2Geno's prokka_env as the
+# reproduction ran it (prokka 1.14.6, prodigal 2.6.3, BLAST 2.13.0, hmmer 3.3.2, ...), on
+# conda-forge + bioconda only. Gene names feed Roary's family names, so the annotation stack is
+# pinned, not just Prokka.
+#   apptainer build --fakeroot containers/images/prokka-1.14.6.sif containers/prokka/prokka.def
+Bootstrap: docker
+From: almalinux:8
+
+%files
+    envs/prokka.lock.txt /opt/build/prokka_env.explicit.txt
+
+%post
+    set -eu
+    # libgomp: the env relied on the host OS for it (its BLAST links libgomp.so.1)
+    dnf -y install bzip2 which findutils libgomp && dnf clean all
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.10 | tar -xvj -C /usr/local bin/micromamba
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    # ps (Nextflow's task metrics, GNU parallel): procps-ng from conda-forge -- the OS package
+    # cannot be unpacked in a root-mapped build (/usr/bin/free fails).
+    micromamba create -y -p /opt/envs/sys -c conda-forge procps-ng
+    ln -s /opt/envs/sys/bin/ps /usr/local/bin/ps
+    MAMBA_ROOT_PREFIX=/opt/conda micromamba create -y -p /opt/envs/prokka --file /opt/build/prokka_env.explicit.txt
+    # Java without its memory-mapped /tmp/hsperfdata file: on a node whose /tmp fills, the JVM
+    # dies at start with SIGBUS (seen on bioinf039), and Prokka reads that as minced failing
+    # its version check. -XX:-UsePerfData only disables JVM performance counters.
+    # --follow-symlinks: bin/minced is a link; replacing it breaks the script's own jar lookup
+    sed -i --follow-symlinks 's|^exec $java -jar|exec $java -XX:-UsePerfData -jar|' /opt/envs/prokka/bin/minced
+    test -L /opt/envs/prokka/bin/minced
+    grep -q -- '-XX:-UsePerfData' /opt/envs/prokka/bin/minced
+    PATH=/opt/envs/prokka/bin:$PATH prokka --setupdb
+
+%environment
+    export SHELL=/bin/bash
+    export PATH=/opt/envs/prokka/bin:$PATH
+    export LC_ALL=C
+
+%test
+    minced --version | grep -q 0.4.2
+    ps -p $$ > /dev/null
+    prokka --version 2>&1 | grep -q "1.14.6"

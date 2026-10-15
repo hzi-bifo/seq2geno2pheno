@@ -1,0 +1,18 @@
+# Development environment for seq2geno2pheno v3: the Python package, its tests, and the
+# Nextflow driver. The bioinformatics tools (Prokka, Roary, mafft, msa2vcf, BLAST, KMC) are
+# NOT here -- the workflow runs each one in its own pinned container (see containers/).
+name: s2g2p-dev
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - numpy>=1.26
+  - pandas>=2.1
+  - scikit-learn>=1.4
+  - pyyaml>=6
+  - joblib>=1.3
+  - skops>=0.10
+  - pytest>=8
+  - nextflow>=24.10
+  - openjdk=17

@@ -1,0 +1,10 @@
+# The external programs Roary 3.8.2 calls, at the versions Seq2Geno's Roary fork builds with its
+# install_dependencies.sh (CD-HIT 4.6.6, MCL 14-137, bedtools 2.26, FastTree 2.1.9), from Bioconda instead of
+# compiled on the host. BLAST+ 2.4.0 (not on Bioconda) and GNU parallel 20160722 are fetched by
+# envs/install.sh from their upstream tarballs, checksummed. FastTree and PRANK only build the
+# accessory tree and the non-mafft core alignment, which no feature reads.
+cd-hit==4.6.6
+mcl==14.137
+bedtools==2.26.0
+fasttree==2.1.9
+prank==170427
