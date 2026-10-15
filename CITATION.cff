@@ -3,7 +3,7 @@ message: "If you use this software, please cite it as below."
 title: "Seq2Geno2Pheno: A Computational Workflow for Phenotype Predictive-Modeling and Biomarker Detection from Microbial Sequence Data"
 type: software
 version: 3.0.0.dev0
-license-url: "https://github.com/hzi-bifo/seq2geno2pheno/blob/main/LICENSE"
+license-url: "https://github.com/hzi-bifo/seq2geno2pheno/blob/master/LICENSE"
 repository-code: "https://github.com/hzi-bifo/seq2geno2pheno"
 authors:
   - given-names: Ehsaneddin
