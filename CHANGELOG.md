@@ -16,6 +16,10 @@ Rewrite. v2.00001 is kept at the tag `v2.00001` and the branch `legacy-v2`.
 - Presets: `noleak` (default; no test-set information in any feature), `hu2024` (the published
   configuration), `fast`, `g2p` (experimental).
 - Train a final model and predict new genomes (`--mode train`, `--mode predict`).
+- Outer folds for any cohort (`--mode folds`, `s2g2p folds`): stratified random,
+  phylogeny-aware (NJ tree leaf order in equal blocks) and homology-aware (KMA, ported from
+  Hu et al. 2024). See docs/folds.md.
+- A warning when no `-work-dir` is given; the README walks through a run step by step.
 - Seq2Geno's Python 2 helpers ported to Python 3 and tested against the originals.
 - Git submodules `seq2geno` and `Geno2PhenoClient` removed from `main`.
 

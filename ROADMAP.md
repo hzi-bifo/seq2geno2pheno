@@ -92,8 +92,11 @@ Nothing is published. Status as of 2026-10-12.
 
 ## After 3.0
 
-- Phylogeny-aware and homology-aware fold construction for users' own cohorts (today: fixed
-  fold files, or stratified random).
+- Container images for `--mode folds --fold_method phylogeny|kma` (R/phangorn, kma_clustering);
+  today they run under `-profile conda` only. Fold construction itself is in the tree
+  (`--mode folds`, docs/folds.md).
+- Ask E. Asgari for the Geno2Pheno server's tree-based split, to confirm or replace the
+  leaf-order reconstruction of `--fold_method phylogeny` (docs/folds.md).
 - A `modern` preset (Bakta + Panaroo), clearly marked as a non-reproduction.
 - nf-core-style `nextflow_schema.json`, `nf-test` tests, a MultiQC-style report.
 - A Bioconda recipe for the `s2g2p` package, and PyPI.

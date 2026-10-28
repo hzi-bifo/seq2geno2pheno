@@ -220,6 +220,94 @@ process SPLIT {
     """
 }
 
+process NJ_TREE {
+    // Phylogeny-aware folds: phangorn NJ on Hamming distances of Roary's core-gene alignment
+    // (src/s2g2p/R/nj_tree.R; AMR_benchmarking src/cv_folds/phylo_tree.r). -profile conda only.
+    label 'process_high'
+    publishDir "${params.outdir}/folds/tree", mode: params.publish_dir_mode
+
+    input:
+    tuple val(label), path(roary)
+
+    output:
+    path 'nj_tree.newick'
+
+    script:
+    """
+    [ -s ${roary}/core_gene_alignment.aln ] || { echo "Roary wrote no core_gene_alignment.aln (its args need -e --mafft)" >&2; exit 1; }
+    nj_tree ${roary}/core_gene_alignment.aln nj_tree.newick
+    """
+
+    stub:
+    """
+    printf '((a:1,b:1):1,(c:1,d:1):1);\\n' > nj_tree.newick
+    """
+}
+
+process KMA_CLUSTER {
+    // Homology-aware folds, per phenotype: its labelled genomes in sample-sheet order, contigs
+    // joined by 16 Ns, through kma_clustering with the published arguments (AMR_benchmarking
+    // AytanAktug/cluster_preparation/cluster_SSSA.sh). -profile conda only.
+    tag "${phenotype}"
+    label 'process_medium'
+    publishDir "${params.outdir}/folds/kma", mode: params.publish_dir_mode
+
+    input:
+    path sheet
+    tuple val(ids), path(fastas, stageAs: 'asm/?/*')
+    each phenotype
+
+    output:
+    path "${phenotype}.clusters.txt"
+
+    script:
+    def rows = [ids, fastas instanceof List ? fastas : [fastas]].transpose().collect { s, f -> "${s}\t${f}" }.join('\n')
+    """
+    printf 'sample\tassembly\n${rows}\n' > assemblies.tsv
+    s2g2p kma-input --samplesheet ${sheet} --phenotype ${phenotype} --assemblies assemblies.tsv --out merged.fna
+    kma_clustering -i -- -k ${params.kma_k} -Sparse - -ht ${params.kma_identity} -hq ${params.kma_identity} -NI \\
+        -o clustered < merged.fna > ${phenotype}.clusters.txt 2>&1
+    grep -q 'Added' ${phenotype}.clusters.txt || { cat ${phenotype}.clusters.txt >&2; echo "kma_clustering reported no cluster" >&2; exit 1; }
+    """
+
+    stub:
+    """
+    printf '1\\t# Added:\\ta\\n2\\t# Added:\\tc\\nSimilar to q:1 t:1\\t# Skipped:\\tb\\nSimilar to q:2 t:2\\t# Skipped:\\td\\n' > ${phenotype}.clusters.txt
+    """
+}
+
+process FOLDS {
+    label 'process_single'
+    container params.containers.s2g2p
+    publishDir "${params.outdir}", mode: params.publish_dir_mode
+
+    input:
+    path sheet
+    path tree        // phylogeny: the Newick tree; otherwise nothing
+    path clusters    // kma: <phenotype>.clusters.txt; otherwise nothing
+    val method
+
+    output:
+    path 'folds/*_cv.json'
+    path 'folds/manifest.tsv'
+
+    script:
+    def src = method == 'phylogeny' ? "--tree ${tree}" :
+              method == 'kma' ? "--kma-clusters '{phenotype}.clusters.txt' --kma-seed ${params.kma_seed}" :
+              "--seed ${params.seed}"
+    """
+    s2g2p folds --samplesheet ${sheet} --method ${method} --phenotype ${params.phenotype} \\
+        --n-folds ${params.n_folds} ${src} --out-dir folds
+    """
+
+    stub:
+    """
+    mkdir folds
+    echo '[["a","b"],["c","d"]]' > folds/drug_${method}_cv.json
+    touch folds/manifest.tsv
+    """
+}
+
 process PLACE {
     // Held-out genomes into their fold's training pangenome (s2g2p.place).
     tag "${label}"

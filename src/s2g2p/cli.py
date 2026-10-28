@@ -239,12 +239,63 @@ def cmd_predict(args):
 
 
 def cmd_folds(args):
-    from .folds import stratified_folds
+    """Outer folds per phenotype by one of s2g2p.folds.METHODS; --out-dir writes
+    <phenotype>_<method>_cv.json per phenotype and manifest.tsv."""
+    from . import folds as F
+
+    sheet = io.read_samplesheet(args.samplesheet)
+    phenotypes = _phenotypes(sheet, args.phenotype)
+    if bool(args.out) == bool(args.out_dir):
+        raise SystemExit("pass one of --out-dir, or --out with a single --phenotype")
+    if args.out and len(phenotypes) != 1:
+        raise SystemExit("--out takes a single --phenotype; use --out-dir for several")
+    if args.method == "phylogeny" and not args.tree:
+        raise SystemExit("--method phylogeny needs --tree (Newick)")
+    if args.method == "kma" and not args.kma_clusters:
+        raise SystemExit("--method kma needs --kma-clusters (kma_clustering's log; '{phenotype}' is replaced)")
+    leaves = F.newick_leaves(Path(args.tree).read_text()) if args.method == "phylogeny" else None
+    rows = []
+    for ph in phenotypes:
+        labels = io.labels_for(sheet, ph)
+        samples = list(labels.index)
+        info: dict = {}
+        if args.method == "random":
+            folds = F.stratified_folds(labels, args.n_folds, args.seed)
+            info = {"source": f"stratified seed={args.seed}"}
+        elif args.method == "phylogeny":
+            folds = F.tree_folds(leaves, samples, args.n_folds)
+            info = {"source": args.tree}
+        else:
+            path = args.kma_clusters.replace("{phenotype}", ph)
+            clusters = F.read_kma_clusters(path)
+            folds = F.kma_folds(clusters, samples, args.n_folds, args.kma_seed)
+            info = {"source": path, "clusters": len(clusters),
+                    "unclustered": len(F.unclustered(clusters, samples))}
+        F.validate(folds, samples)
+        if args.out:
+            target = Path(args.out)
+        else:
+            Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+            target = Path(args.out_dir) / f"{ph}_{args.method}_cv.json"
+        io.write_folds(folds, target)
+        rows.append({"file": target.name, "phenotype": ph, "method": args.method, "genomes": len(samples),
+                     "folds": len(folds), "fold_sizes": ",".join(str(len(f)) for f in folds),
+                     "resistant_per_fold": ",".join(str(int(labels[f].sum())) for f in folds), **info})
+        _log(f"{ph}: {args.method} folds over {len(samples)} genomes, sizes {rows[-1]['fold_sizes']} -> {target}")
+    if args.out_dir:
+        cols = ["file", "phenotype", "method", "genomes", "folds", "fold_sizes", "resistant_per_fold", "source"]
+        cols += [c for c in ("clusters", "unclustered") if any(c in r for r in rows)]
+        io.write_manifest(args.out_dir, rows, cols)
+
+
+def cmd_kma_input(args):
+    from .folds import write_kma_input
 
     sheet = io.read_samplesheet(args.samplesheet)
     labels = io.labels_for(sheet, args.phenotype)
-    io.write_folds(stratified_folds(labels, args.n_folds, args.seed), args.out)
-    _log(f"{args.n_folds} stratified folds over {len(labels)} genomes -> {args.out}")
+    asm = (io.read_samplesheet(args.assemblies) if args.assemblies else sheet)["assembly"]
+    write_kma_input([(s, asm[s]) for s in labels.index], args.out)
+    _log(f"{args.phenotype}: {len(labels)} genomes, contigs joined by Ns -> {args.out}")
 
 
 def cmd_split(args):
@@ -389,13 +440,25 @@ def main(argv=None):
     p.add_argument("--out-dir", required=True)
     p.set_defaults(fn=cmd_split)
 
-    p = sub.add_parser("folds", help="write seeded stratified random folds")
+    p = sub.add_parser("folds", help="outer folds: random, phylogeny-aware or homology-aware (KMA)")
     p.add_argument("--samplesheet", required=True)
-    p.add_argument("--phenotype", required=True)
+    p.add_argument("--method", choices=["random", "phylogeny", "kma"], default="random")
+    p.add_argument("--phenotype", default="all")
     p.add_argument("--n-folds", type=int, default=10)
-    p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--out", required=True)
+    p.add_argument("--seed", type=int, default=0, help="random: the StratifiedKFold seed")
+    p.add_argument("--tree", help="phylogeny: Newick tree whose leaves are the sample ids")
+    p.add_argument("--kma-clusters", help="kma: kma_clustering's log; '{phenotype}' is replaced")
+    p.add_argument("--kma-seed", type=int, default=42, help="kma: the cluster allocation seed (published: 42)")
+    p.add_argument("--out-dir", help="<phenotype>_<method>_cv.json per phenotype, and manifest.tsv")
+    p.add_argument("--out", help="one fold file (.json, else TSV); needs a single --phenotype")
     p.set_defaults(fn=cmd_folds)
+
+    p = sub.add_parser("kma-input", help="one record per genome, contigs joined by Ns (kma_clustering input)")
+    p.add_argument("--samplesheet", required=True)
+    p.add_argument("--phenotype", required=True, help="genomes labelled for it, in sample-sheet order")
+    p.add_argument("--assemblies", help="sample/assembly table overriding the sheet's paths (staged copies)")
+    p.add_argument("--out", required=True)
+    p.set_defaults(fn=cmd_kma_input)
 
     args = ap.parse_args(argv)
     args.fn(args)

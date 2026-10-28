@@ -102,6 +102,12 @@ def read_folds(path: str | os.PathLike) -> list[list[str]]:
 
 
 def write_folds(folds: Sequence[Sequence[str]], path: str | os.PathLike) -> None:
+    """A ``.json`` path gets the benchmark's format (a list of id lists), anything else a TSV of
+    ``sample`` and ``fold``."""
+    if str(path).endswith(".json"):
+        with open(path, "w") as fh:
+            json.dump([list(map(str, f)) for f in folds], fh)
+        return
     with open(path, "w") as fh:
         fh.write("sample\tfold\n")
         for i, f in enumerate(folds):

@@ -15,6 +15,11 @@ nextflow -q run . -profile test -stub-run --mode predict --model_dir results-tes
 echo "stub run predict: OK"
 nextflow -q run . -profile test -stub-run --mode install --outdir results-test/install -work-dir work-test
 echo "stub run install: OK"
+for m in random phylogeny kma; do
+  nextflow -q run . -profile test -stub-run --mode folds --fold_method "$m" --outdir "results-test/folds-$m" -work-dir work-test
+  [[ -s results-test/folds-$m/folds/drug_${m}_cv.json ]] || { echo "folds $m: no fold file"; exit 1; }
+  echo "stub run folds $m: OK"
+done
 # -profile conda: every task gets the installed wrappers on PATH; EVALUATE gets the preset's
 # model environment first (hu2024: bin-hu2024ml)
 for preset in hu2024 noleak; do

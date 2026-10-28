@@ -22,6 +22,8 @@
 #   msa2vcf     jvarkit msa2vcf 1.0 (Seq2Geno's indel calling environment, exact package list)
 #   s2g2p       this package, editable, on Python 3.12
 #   hu2024ml    the published model environment (Python 3.7, scikit-learn 0.24.1) + this package
+#   folds       R 4.2 + ape + phangorn (phylogeny-aware folds) and kma_clustering, compiled here
+#               from envs/vendor/kma_clustering.c as Hu et al. 2024 shipped it (homology-aware folds)
 set -euo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -58,6 +60,9 @@ BLAST_URL=https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.4.0/ncbi-blast
 BLAST_SHA=21aa7ca60954ce9c6d3f572e427fee804291fcad41447d554033a81d5af96a2b
 PARALLEL_URL=https://ftp.gnu.org/gnu/parallel/parallel-20160722.tar.bz2
 PARALLEL_SHA=e391ebd081e8ba13e870be68106d1beb5def2b001fa5881f46df0ab95304f521
+# envs/vendor/kma_clustering.c = hzi-bifo/AMR_benchmarking@2850078
+# AMR_software/AytanAktug/cluster_preparation/kma_clustering.c (KMA_index 1.0.3, Apache-2.0)
+KMA_SRC_SHA=8e2960827f652ffe0fb08754b0b9376742781bb547e96e80172a9409a4aee48d
 
 # -- conda environments --------------------------------------------------------------------
 # An environment is (re)created when its lock file changed; the lock's sha256 is the stamp.
@@ -155,6 +160,23 @@ if create_env hu2024ml; then
     done_env hu2024ml
 fi
 
+create_env folds && done_env folds
+
+# kma_clustering, compiled as AytanAktug_SSSA.sh did (gcc -O3 ... -lm -lz), with the
+# environment's compiler and zlib. Rebuilt when the vendored source changes.
+kma_src=$here/vendor/kma_clustering.c
+kma_bin=$prefix/folds/bin/kma_clustering
+[ "$(sha256sum < "$kma_src" | cut -d' ' -f1)" = "$KMA_SRC_SHA" ] \
+    || die "envs/vendor/kma_clustering.c is not the published file (sha256 $KMA_SRC_SHA)"
+if [ $force = 1 ] || [ ! -x "$kma_bin" ] || [ "$(cat "$kma_bin.sha256" 2> /dev/null)" != "$KMA_SRC_SHA" ]; then
+    say "kma_clustering: compiling $kma_src"
+    cc=$(ls "$prefix"/folds/bin/x86_64-conda*-linux-gnu-cc 2> /dev/null | head -1)
+    [ -n "$cc" ] || die "folds: the environment has no C compiler"
+    "$cc" -O3 -o "$kma_bin" "$kma_src" -I"$prefix/folds/include" -L"$prefix/folds/lib" \
+        -Wl,-rpath,"$prefix/folds/lib" -lm -lz
+    echo "$KMA_SRC_SHA" > "$kma_bin.sha256"
+fi
+
 # -- upstream tarballs ---------------------------------------------------------------------
 fetch() {  # url sha256 destdir
     local url=$1 sha=$2 dest=$3
@@ -211,6 +233,11 @@ exec $P/mafft/bin/mafft \"\$@\""
 wrap msa2vcf "export PATH=$P/msa2vcf/bin:\$PATH
 exec $P/msa2vcf/bin/msa2vcf \"\$@\""
 wrap s2g2p "exec $P/s2g2p/bin/python -m s2g2p \"\$@\""
+# R sees only the environment's library: no site or user library, profile or environ file.
+wrap nj_tree "unset R_LIBS R_LIBS_SITE R_HOME
+export R_LIBS_USER=$P/folds/lib/R/library
+exec $P/folds/bin/Rscript --vanilla $repo/src/s2g2p/R/nj_tree.R \"\$@\""
+wrap kma_clustering "exec $P/folds/bin/kma_clustering \"\$@\""
 printf '#!/usr/bin/env bash\n# written by envs/install.sh\nexec %s/hu2024ml/bin/python -m s2g2p "$@"\n' "$P" > "$P/bin-hu2024ml/s2g2p"
 chmod +x "$P/bin-hu2024ml/s2g2p"
 
@@ -242,13 +269,21 @@ done
 "$B/s2g2p" --version
 "$P/bin-hu2024ml/s2g2p" --version
 "$P/hu2024ml/bin/python" -c "import sklearn; assert sklearn.__version__ == '0.24.1', sklearn.__version__"
+"$B/kma_clustering" -v | grep -q "KMA_index-1.0.3" || die "kma_clustering is not KMA_index 1.0.3"
+chk=$(mktemp -d "$P/.check.XXXXXX")
+printf '>a\nACGTACGTACGTAAGG\n>b\nACGTACGTACGTAAGC\n>c\nTCGAACGTACGAAAGC\n>d\nTCGAACGTACGAATGC\n' > "$chk/aln.fa"
+"$B/nj_tree" "$chk/aln.fa" "$chk/t.nwk" > /dev/null || die "nj_tree does not run"
+for s in a b c d; do grep -q "$s" "$chk/t.nwk" || die "nj_tree wrote no leaf $s"; done
+"$B/nj_tree" "$chk/aln.fa" "$chk/t.nwk" | grep -q "phangorn 2.10.0, ape 5.6.2" || die "nj_tree: phangorn/ape are not 2.10.0/5.6-2"
+rm -rf "$chk"
 command -v ps > /dev/null || echo "warning: no 'ps' on PATH; Nextflow needs it for task metrics"
 
 {
     printf 'component\tsource\n'
-    for n in prokka roary-perl roary-deps mafft msa2vcf s2g2p hu2024ml; do
+    for n in prokka roary-perl roary-deps mafft msa2vcf s2g2p hu2024ml folds; do
         printf '%s\t%s sha256:%s\n' "$n" "envs/$n.lock.txt" "$(cat "$P/$n/.s2g2p-lock")"
     done
+    printf 'kma_clustering\tenvs/vendor/kma_clustering.c sha256:%s\n' "$KMA_SRC_SHA"
     printf 'roary\t%s\nblast-2.4.0\t%s\nparallel\t%s\n' "$ROARY_URL" "$BLAST_URL" "$PARALLEL_URL"
 } > "$P/manifest.tsv"
 date -u +%FT%TZ > "$P/.installed"

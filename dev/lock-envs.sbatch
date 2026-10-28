@@ -12,14 +12,14 @@
 # tarballs envs/install.sh downloads. Run it when a spec changes, then commit the locks and
 # paste any changed checksum into envs/install.sh.
 #
-#   sbatch -o log/%x_%j.out dev/lock-envs.sbatch [prokka roary-deps s2g2p]
+#   sbatch -o log/%x_%j.out dev/lock-envs.sbatch [prokka roary-deps s2g2p folds]
 #
 # Channels are conda-forge and bioconda only (defaults overridden). Priority is flexible: the
 # specs pin Bioconda tools by version, and strict priority would hide them behind conda-forge
 # packages of the same name.
 set -euo pipefail
 names=("$@")
-[ ${#names[@]} -gt 0 ] || names=(prokka roary-deps s2g2p)
+[ ${#names[@]} -gt 0 ] || names=(prokka roary-deps s2g2p folds)
 CONDA=${CONDA:-$HOME/miniforge3/bin/conda}
 work=$(mktemp -d "${TMPDIR:-/tmp}/s2g2p-lock.XXXXXX")
 trap 'rm -rf "$work"' EXIT

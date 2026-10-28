@@ -112,7 +112,8 @@ Other presets:
 
 To use your own folds instead of seeded stratified ones, pass `--folds folds.json` (a JSON list
 of lists of sample names, or a TSV of `sample`, `fold`). With several phenotype columns, use
-`--folds 'folds/{phenotype}.json'`.
+`--folds 'folds/{phenotype}.json'`. `--mode folds --fold_method phylogeny` or `kma` makes
+phylogeny- or homology-aware folds in that format first (README, step 4; [folds.md](folds.md)).
 
 ## 5. Read the results
 

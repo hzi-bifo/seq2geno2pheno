@@ -26,6 +26,12 @@ Third-party code
 - A port of the model-selection procedure of the AMR benchmarking pipeline of Hu et al. 2024
   (https://github.com/hzi-bifo/AMR_benchmarking: main_s2p.py, hyper_range.py,
   result_analysis.py), © 2023 its authors, MIT License (full text: licenses/AMR_benchmarking-MIT.txt).
+  From the same repository and under the same licence: the homology-aware fold construction
+  (src/cv_folds/cluster2folds.py, AytanAktug/data_preparation/merge_scaffolds.py), ported in
+  src/s2g2p/folds.py, and the phylogenetic tree script (src/cv_folds/phylo_tree.r), adapted as
+  src/s2g2p/R/nj_tree.R.
+- envs/vendor/kma_clustering.c, © 2017 Philip T.L.C. Clausen, Technical University of Denmark,
+  Apache License 2.0 (notice in the file's header), unchanged from AMR_benchmarking.
 
 Not included
 ------------

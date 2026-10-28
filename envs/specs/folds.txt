@@ -1,0 +1,9 @@
+# Fold construction tools (s2g2p folds --method phylogeny|kma). R with ape + phangorn for the
+# neighbour-joining tree of src/s2g2p/R/nj_tree.R, at the CRAN releases current when Hu et al.
+# made their trees (2022), and a C compiler + zlib for envs/vendor/kma_clustering.c, which
+# envs/install.sh builds into this environment. Lock: envs/folds.lock.txt (dev/lock-envs.sbatch).
+r-base==4.2.3
+r-ape==5.6_2
+r-phangorn==2.10.0
+c-compiler
+zlib
